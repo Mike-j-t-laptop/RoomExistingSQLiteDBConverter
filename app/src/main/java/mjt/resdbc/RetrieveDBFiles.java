@@ -78,6 +78,4 @@ public class RetrieveDBFiles {
         }
         return true;
     }
-
-
 }
