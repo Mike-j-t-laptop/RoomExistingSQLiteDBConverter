@@ -1,0 +1,87 @@
+<resources>
+    <string name="app_name">RoomDBConverter</string>
+    <string name="main_title">Room Pre-Existing Database Conversion Tool</string>
+    <string name="assetlistviewheader">Files found (click a File to select/convert)</string>
+    <string name="selectedassetdbinfoheading">Selected Database Information</string>
+    <string name="convertbutton">CONVERT</string>
+    <string name="convert_result_ok">Successfully Converted</string>
+    <string name="convert_result_not_ok">Issues Converting</string>
+    <string name="convert_main_directory_prefix">Convert_</string>
+    <string name="convert_directory_label">Conversion Directory</string>
+    <string name="convert_entity_directory_label">Entity Sub-Directory</string>
+    <string name="convert_dao_subdirectory_label">DAO Sub-Directory</string>
+    <string name="convert_directory_empty">The Conversion Directory is Empty. Please supply a valid directory name for the conversion.</string>
+    <string name="convert_entity_directory_empty">The Conversion Entity Directory is Empty. Please supply a valid directorty name for the conversion.</string>
+    <string name="convert_dao_directory_empty">The Conversion Dao Directory is Empty. Please supply a valid directory name for the conversion.</string>
+    <string name="donebutton">DONE</string>
+    <string name="applychangesbutton">APPLY CHANGES</string>
+    <string name="dbname">Name</string>
+    <string name="dbpath">Path</string>
+    <string name="dbversion">Version</string>
+    <string name="dbdisksize">Size</string>
+    <string name="dbtablecount">Tables</string>
+    <string name="dbcolumncount">Columns</string>
+    <string name="dbindexcount">Indexes</string>
+    <string name="dbtriggercount">Triggers</string>
+    <string name="dbviewcount">Views</string>
+    <string name="dbforeignkeycount">FK</string>
+
+
+    <string name="entitywarningroommastertable">Indicates a room master table, this will be omitted from the converted database.</string>
+    <string name="entitytablevirtualtable">Indicates a virtual table, this will be omitted from the converted database.</string>
+    <string name="entitywarningautoincrementadd">AUTOINCREMENT will be added.</string>
+    <string name="entitywarningnumerictype">NUMERIC type detected. Using TEXT and therefore object meber will be String </string>
+    <string name="entitywarningdefaultvalue">A default value has been detected. You may wish to set the object member to default to the value.</string>
+    <string name="entitywarningnoprimarykey">Room requires all entities (tables) to have a primary key. Will generate primary key from all columns.</string>
+    <string name="entitywarningderivedtype">The specified type affinity is not usable in Room, the derived type will be used (if not NUMERIC).</string>
+
+    <string name="entitySQL">SQL</string>
+    <string name="entitytablenamehdr">Table Name</string>
+    <string name="entitytableenclosednamehdr">Encl Table Name</string>
+    <string name="entitytablecolcounthdr">Columns</string>
+    <string name="entitytablefkeyscounthdr">FKeys</string>
+    <string name="entitytabletriggercounthdr">Triggers</string>
+    <string name="entitytableindexescounthdr">Indexes</string>
+    <string name="entitytableprimarykeyshdr">Primary Keys</string>
+
+    <string name="entitycolumnnamehdr">Column Name</string>
+    <string name="entitycolumntypehdr">Type</string>
+    <string name="entitycolumnderivedtypehdr">Derived</string>
+    <string name="entitycolumnfinaltypehdr">Final</string>
+    <string name="entitycolumnnotnullhdr">NotNull</string>
+    <string name="entitycolumnuniquehdr">Unique</string>
+    <string name="entitycolumnrowidaliashdr">Rowid Alias</string>
+    <string name="entitycolumnautoincrementcoded">AutoIncrement Coded</string>
+    <string name="entitycolumndefaultvaluehdr">Default</string>
+    <string name="entityaltcolumnnamehdr">Encl Col Name</string>
+    <string name="entitycolumnobjectelementtype">Object Element Type</string>
+    <string name="entitycannotbechanged">Cannot be edited here.</string>
+
+    <string name="entityfkeyparenttablenamehdr">Parent Table</string>
+    <string name="entityfkeychildtablenamehdr">Child Table</string>
+    <string name="entityfkeyparentcolumnshdr">Parent Columns</string>
+    <string name="entityfkeychildcolumnshdr">Child Columns</string>
+    <string name="entityfkeyonupdateactionhdr">OnUpdate Action</string>
+    <string name="entityfkeyondeleteactionhdr">On Delete Action</string>
+    <string name="entityfkeydeferrableflaghdr">Deferrable</string>
+
+    <string name="entitytriggernamehdr">Trigger Name</string>
+    <string name="entitytriggertablenamehdr">Table Name</string>
+
+    <string name="entityindexnamehdr">Index Name</string>
+    <string name="entityindextablenamehdr">@string/entitytablenamehdr</string>
+    <string name="entityindexcolumnnameshdr">@string/entitytablecolcounthdr</string>
+    <string name="entityindexwhereclausehdr">Where Clause</string>
+    <string name="entityindexuniquehdr">Unique</string>
+
+    <string name="entityviewnamehdr">View Name</string>
+
+    <array name="entitytypes">
+        <item>Tables</item>
+        <item>Columns</item>
+        <item>Indexes</item>
+        <item>Triggers</item>
+        <item>Views</item>
+        <item>Foreign Keys</item>
+    </array>
+</resources>

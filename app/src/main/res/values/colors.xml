@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#D81B60</color>
+    <color name="colorTextLight">#FF999999</color>
+    <color name="colorTextMedium">#FF555555</color>
+    <color name="colorTextDark">#FF000000</color>
+    <color name="colorTextMainHeading">#FFFFFFFF</color>
+    <color name="colorTextWariningHigh">#FFFF5555</color>
+    <color name="colorTextWarningLow">#FFFF9955</color>
+    <color name="colorMainHeadingBackground">#FF0000FF</color>
+    <color name="colorSQL">#FF0000FF</color>
+    <color name="colorConvertSectionBackground">#FFFFDDDD</color>
+    <color name="colorAssetHeadingBackground">#FFAAAAFF</color>
+    <color name="colorAssetListBackground">#FFEEEEFF</color>
+    <color name="colorDatabaseInfoHeadingBackground">#FFAAFFAA</color>
+    <color name="colorDatabaseInfoBackground">#FFCCFFCC</color>
+    <color name="colorEntityListHeadingBackground">#FFDDEEAA</color>
+    <color name="colorEntityListBackground">#FFEEFFAA</color>
+</resources>
