@@ -114,12 +114,18 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
         manageConversionEditTexts();
     }
 
+    /**
+     * Manage the Conversion EditText's by adding on text changed listeners
+     */
     private void manageConversionEditTexts() {
         mConversionDirectoryEditText.addTextChangedListener(new CustomTextWatcher());
         mConversionEntityDirectoryEditText.addTextChangedListener(new CustomTextWatcher());
         mConversionDaoDirectoryEditText.addTextChangedListener(new CustomTextWatcher());
     }
 
+    /**
+     * Manage the Convert Button that converts the currently selected database if EditTexts contain appropriate input
+     */
     private void manageConvertButton() {
 
         mConvert.setOnClickListener(new View.OnClickListener() {
@@ -156,6 +162,10 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
         });
     }
 
+    /**
+     * manages the visibility of the convert Button, disabling it if EditText's have no data
+     * note overkill in association with the checks done in manageConvertButton
+     */
     private void setConvertButtonFocusability() {
         int cdetLength = mConversionDirectoryEditText.getText().toString().length();
         int cedetLength = mConversionEntityDirectoryEditText.getText().toString().length();
@@ -167,6 +177,10 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
         }
     }
 
+    /**
+     * Manage the File List (SQLite Databases in external public storage),
+     * Part 1 (File List retrieval) as run on non UI thread
+     */
     private void manageDBFilesListView() {
         new Thread(new Runnable() {
             @Override
@@ -176,6 +190,11 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
         }).start();
     }
 
+    /**
+     * Manage the FileList Listview,
+     * Part 2 setup the adapter and listview if not done,
+     * otherwise refresh the ListView
+     */
     private void manageDBFilesListViewAfterRetrieve() {
         if (mDBFiles == null) return;
         if (mDBFilesAA == null) {
@@ -373,6 +392,10 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
         }
     }
 
+    /**
+     * Handle selection of a file from the Listview listing the SQLiteDatabase files
+     * @param f     the selected file
+     */
     public void handleSelectedFile(File f) {
         if (mPEFDBIList == null) {
             mPEFDBIList = new ArrayList<>();
@@ -497,6 +520,12 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
         }
     }
 
+    /**
+     * Handle returns from other Activities
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
@@ -515,6 +544,11 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
         super.onActivityResult(requestCode,resultCode,data);
     }
 
+    /**
+     * Appl column changes made by the ColumnActivity
+     * @param changes
+     * @param original
+     */
     private void applyColumnChanges(ColumnInfo changes, ColumnInfo original) {
         boolean changes_applied = false;
         if (
@@ -545,6 +579,10 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
         }
     }
 
+    /**
+     * Display a dialog detailing the result of the conversion
+     * @param issues
+     */
     public void showConversionResults(final boolean issues) {
         runOnUiThread(new Runnable() {
             @Override
@@ -578,11 +616,20 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
         });
     }
 
+    /**
+     * handle permission having been granted,
+     * i.e. refresh the FileList as without permission none would be listed
+     */
     @Override
     public void permissionHasBeenGranted() {
         manageDBFilesListView();
     }
 
+    /**
+     * Handle the files aving been retrieved
+     * i.e. goto part2 od managing the FileLise ListView
+     * @param fileList
+     */
     @Override
     public void fileListBuilt(ArrayList<FileEntry> fileList) {
         if (mDBFiles == null) {
@@ -598,6 +645,10 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
         });
     }
 
+    /**
+     * TextWatcher for the Conversion EditTexts,
+     * all just call the setConvertFocusability method
+     */
     private class CustomTextWatcher implements TextWatcher {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -611,7 +662,6 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
         public void afterTextChanged(Editable s) {
             setConvertButtonFocusability();
         }
-
     }
 
     @Override
