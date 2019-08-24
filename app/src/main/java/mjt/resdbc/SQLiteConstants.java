@@ -62,6 +62,7 @@ public class SQLiteConstants {
     public static final String KEYWORD_TABLE = "TABLE";
     public static final String KEYWORD_VIRTUAL = "VIRTUAL";
     public static final String CLAUSE_CREATEVIRTTBL = KEYWORD_CREATE + " " +  KEYWORD_VIRTUAL + " " + KEYWORD_TABLE;
+    public static final String KEYWORD_USING = "USING";
     public static final String KEYWORD_INDEX = "INDEX";
     public static final String KEYWORD_WHERE = "WHERE";
     public static final String KEYWORD_UNIQUE = "UNIQUE";
@@ -119,5 +120,9 @@ public class SQLiteConstants {
     public static final String[] ROOMTYPES_BLOB = new String[]{
             ROOMTYPE_BYTERARRAYPRIMARY,
             ROOMTYPE_BYTEARRAYOBJECT
+    };
+
+    public static final String[] SUPPORTEDVIRTUALTABLEMODULES = new String[]{
+            "FTS3","FTS4"
     };
 }

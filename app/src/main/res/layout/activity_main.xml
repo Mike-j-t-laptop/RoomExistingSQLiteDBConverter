@@ -15,6 +15,39 @@
         android:textColor="@color/colorTextMainHeading"
         android:background="@color/colorMainHeadingBackground"/>
     <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        >
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="8"
+            android:layout_height="match_parent"
+            android:text="@string/assetlistviewheader"
+            android:background="@color/colorAssetHeadingBackground"
+            android:textColor="@color/colorTextMedium"
+            android:layout_marginBottom="0dp"/>
+        <Button
+            android:id="@+id/refresh"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:text="@string/refreshbutton">
+        </Button>
+    </LinearLayout>
+    <ListView
+        android:id="@+id/dbfileslist"
+        android:layout_width="wrap_content"
+        android:layout_weight="10"
+        android:layout_height="0dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@color/colorAssetListBackground">
+    </ListView>
+    <LinearLayout
         android:id="@+id/convert_linear_layout"
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -81,48 +114,16 @@
             android:text="@string/convertbutton" />
     </LinearLayout>
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/assetlistviewheader"
-        android:background="@color/colorAssetHeadingBackground"
-        android:textColor="@color/colorTextMedium"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="0dp"/>
-    <ListView
-        android:id="@+id/dbassetsList"
-        android:layout_width="wrap_content"
-        android:layout_weight="10"
-        android:layout_height="0dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:background="@color/colorAssetListBackground"
-        android:visibility="gone">
-    </ListView>
-    <ListView
-        android:id="@+id/dbfileslist"
-        android:layout_width="wrap_content"
-        android:layout_weight="10"
-        android:layout_height="0dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:background="@color/colorAssetListBackground">
-    </ListView>
-
-    <TextView
         android:id="@+id/selectedassetheading"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/selectedassetdbinfoheading"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="0dp"
         android:background="@color/colorDatabaseInfoHeadingBackground"
         android:textColor="@color/colorTextMedium"
         />
-
     <LinearLayout
         android:orientation="horizontal"
         android:id="@+id/dbinfohdr"
@@ -136,7 +137,7 @@
         <TextView
             android:id="@+id/dbnamehdr"
             android:layout_width="0dp"
-            android:layout_weight="4"
+            android:layout_weight="2"
             android:layout_height="wrap_content"
             android:text="@string/dbname"/>
         <TextView
@@ -148,7 +149,7 @@
         <TextView
             android:id="@+id/dbdisksizehdr"
             android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:layout_height="wrap_content"
             android:text="@string/dbdisksize"/>
         <TextView
@@ -201,7 +202,7 @@
         <TextView
             android:id="@+id/dbname"
             android:layout_width="0dp"
-            android:layout_weight="4"
+            android:layout_weight="2"
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
             android:textColor="@color/colorTextDark"/>
@@ -215,7 +216,7 @@
         <TextView
             android:id="@+id/dbdisksize"
             android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
             android:textColor="@color/colorTextMedium"/>

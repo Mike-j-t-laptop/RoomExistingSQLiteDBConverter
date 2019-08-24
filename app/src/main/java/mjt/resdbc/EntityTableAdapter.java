@@ -38,6 +38,7 @@ public class EntityTableAdapter extends ArrayAdapter {
         TextView fkey_count = listItemView.findViewById(R.id.fkey_count);
         TextView idx_count = listItemView.findViewById(R.id.idx_count);
         TextView trg_count = listItemView.findViewById(R.id.trigger_count);
+        TextView virt_module = listItemView.findViewById(R.id.virtmodule);
         TextView primary_key_list = listItemView.findViewById(R.id.primary_keys);
         TextView sql = listItemView.findViewById(R.id.table_sql);
 
@@ -50,8 +51,13 @@ public class EntityTableAdapter extends ArrayAdapter {
             tblname.setText(currentTI.getTableName() + "\n\t" + getContext().getResources().getString(R.string.entitywarningroommastertable));
         }
         if (currentTI.isVirtualTable()) {
-            tblname.setBackgroundColor(color_warning_high);
-            tblname.setText(currentTI.getTableName() + "\n\t" + getContext().getResources().getString(R.string.entitytablevirtualtable));
+            if (currentTI.isVirtualTableSupported()) {
+                tblname.setBackgroundColor(color_warning_low);
+                tblname.setText(currentTI.getTableName() + "\n\t" + " USING supported module " + currentTI.getVirtualTableModule());
+            } else {
+                tblname.setBackgroundColor(color_warning_high);
+                tblname.setText(currentTI.getTableName() + "\n\t" + getContext().getResources().getString(R.string.entitytablevirtualtable));
+            }
         }
 
         encltblname.setText(currentTI.getEnclosedTableName());
@@ -60,6 +66,7 @@ public class EntityTableAdapter extends ArrayAdapter {
         idx_count.setText(String.valueOf(currentTI.getIndexCount()));
         trg_count.setText(String.valueOf(currentTI.getTriggerCount()));
         StringBuilder sb = new StringBuilder();
+        virt_module.setText(currentTI.getVirtualTableModule());
         for (String s: currentTI.getPrimaryKeyList()) {
             if (sb.length()>0) {
                 sb.append("\n");
@@ -67,7 +74,7 @@ public class EntityTableAdapter extends ArrayAdapter {
             sb.append(s);
         }
         primary_key_list.setText(sb.toString());
-        if (currentTI.getPrimaryKeyList().size() < 1) {
+        if (currentTI.getPrimaryKeyList().size() < 1 && !currentTI.isVirtualTable()) {
             primary_key_list.setBackgroundColor(color_warning_high);
             primary_key_list.setText(sb.toString() + "\n\t" + getContext().getResources().getString(R.string.entitywarningnoprimarykey));
         } else {

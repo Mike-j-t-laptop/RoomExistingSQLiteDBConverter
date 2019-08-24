@@ -76,8 +76,6 @@ public class SQLCreateInterrogator {
         return rv;
     }
 
-
-
     private static String getEnclosedEntityName(String sql, String entityName) {
         for (int i = 0; i < ENTITY_ENCLOSER_OPENERS.length; i++) {
             String enclosedEntityName = extractEnclosedName(
