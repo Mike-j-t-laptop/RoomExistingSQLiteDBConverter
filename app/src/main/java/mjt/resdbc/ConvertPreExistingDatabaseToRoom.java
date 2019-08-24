@@ -204,14 +204,16 @@ public class ConvertPreExistingDatabaseToRoom {
                 continue;
             }
             if (ti.isVirtualTable()) {
-                addMessage(new Message(101,MESSAGELEVEL_WARNING,"VIRTUAL table was skipped (unsupported)."));
+                if (!ti.isVirtualTableSupported()) {
+                    addMessage(new Message(101, MESSAGELEVEL_WARNING, "VIRTUAL table was skipped (unsupported)."));
+                }
                 continue;
             }
             String tableNameToCode = swapEnclosersForRoom(ti.getEnclosedTableName());
             if (tableNameToCode.length() < 1) {
                 tableNameToCode = swapEnclosersForRoom(ti.getTableName());
             }
-            String tableCreateSQL = ConvertedDatabaseCreateTableSQL.createTableCreateSQL(peadbi,ti);
+            String tableCreateSQL = ConvertedDatabaseCreateTableSQL.createTableCreateSQL(peadbi, ti);
 
             try {
                 Log.d(TAG,"Creating table " + ti.getTableName() + " using SQL as :-" + "\n\t" + tableCreateSQL);
@@ -248,10 +250,8 @@ public class ConvertPreExistingDatabaseToRoom {
                 csr2.close();
                 if (convertedRowCount < originalRowCount) {
                     addMessage(new Message(50,MESSAGELEVEL_WARNING,
-                            "Some rows not inserted." +
-                                    "\n\tThe original table had " + String.valueOf(originalRowCount) + "rows, " + String.valueOf(convertedRowCount) + " rows were inserted." +
-                                    "\n\tTOR count via Cursor is " + String.valueOf(tor) +
-                                    "\n\tTCR cound via Cursor is " + String.valueOf(tcr)
+                            "Some rows not inserted into table " + tableNameToCode + "." +
+                                    "\n\tThe original table had " + String.valueOf(originalRowCount) + "rows, " + String.valueOf(convertedRowCount) + " rows were inserted."
                     ));
                 }
             } catch (SQLiteException e) {
@@ -263,6 +263,35 @@ public class ConvertPreExistingDatabaseToRoom {
                 rv = false;
             }
         }
+        for (TableInfo ti: peadbi.getTableInfo()) {
+            if (ti.isVirtualTable() && ti.isVirtualTableSupported()) {
+                String tableCreateSQL = ConvertedDatabaseCreateVirtualTableSQL.createVirtualTableCreateSQL(peadbi,ti);
+                Log.d(TAG,"Creating Virtual Table " + ti.getTableName() + " using SQL as \n\t" + tableCreateSQL);
+                try {
+                    db.execSQL(tableCreateSQL);
+                } catch (SQLiteException e) {
+                    Log.d(TAG,"SQLite Error trying to create  virtual table " + ti.getTableName() +"\n\tError was " + e.getMessage());
+                    addMessage(new Message(103,MESSAGELEVEL_ERROR,"SQLite Error trying to create or load virtual table " + ti.getTableName() + "\n\tError was " + e.getMessage() + "\n\t(check the log)"));
+                    e.printStackTrace();
+                    rv = false;
+                }
+                String tableName = ti.getEnclosedTableName();
+                if (tableName.length() < 1) {
+                    tableName = ti.getTableName();
+                }
+                Cursor csr3 = db.query(tableName,null,null,null,null,null,null);
+                int vtrowcount = csr3.getCount();
+                if (vtrowcount < 1) {
+                    String insertSQL = "INSERT OR IGNORE INTO main." + tableName + " SELECT * FROM " + INSPECTDBATTACHNAME + "." + ti.getTableName() + " WHERE 1";
+                    Log.d(TAG,"Populating Virtual Table " + ti.getTableName());
+                    db.execSQL(insertSQL);
+                }
+                csr3 = db.query(tableName,null,null,null,null,null,null);
+                vtrowcount = csr3.getCount();
+                csr3.close();
+                Log.d(TAG,"Virtual Table " + ti.getTableName() + " has " + String.valueOf(vtrowcount) + " rows.");
+            }
+        }
         db.execSQL("DETACH " + INSPECTDBATTACHNAME);
         if (!rv) {
             db.close();
@@ -272,12 +301,13 @@ public class ConvertPreExistingDatabaseToRoom {
         try {
             //Build Indexes
             for (String s: buildIndexCreateSQL(peadbi)) {
+                Log.d(TAG,"Creating INDEX using \n\t" + s);
                 db.execSQL(s);
             }
         } catch (SQLiteException e) {
             Log.d(TAG,"SQLite Error trying to build indexes " + "\n\tError was " + e.getMessage());
             e.printStackTrace();
-            addMessage(new Message(102,MESSAGELEVEL_ERROR,"SQLite Error building indexes.\n\tError was " + e.getMessage()));
+            addMessage(new Message(105,MESSAGELEVEL_ERROR,"SQLite Error building indexes.\n\tError was " + e.getMessage()));
             db.close();
             return false;
         }
@@ -285,11 +315,12 @@ public class ConvertPreExistingDatabaseToRoom {
 
         try {
             for (String s: buildTriggerCreateSQL(peadbi)) {
+                Log.d(TAG,"Creating TRIGGER using \n\t" + s);
                 db.execSQL(s);
             }
         } catch (SQLiteException e) {
             Log.d(TAG,"SQLite Error trying to build triggers " + "\n\tError was " + e.getMessage());
-            addMessage(new Message(103,MESSAGELEVEL_ERROR,"SQLite Error building Triggers.\n\tError was " + e.getMessage()));
+            addMessage(new Message(106,MESSAGELEVEL_ERROR,"SQLite Error building Triggers.\n\tError was " + e.getMessage()));
             e.printStackTrace();
             db.close();
             return false;

@@ -18,6 +18,8 @@ public class TableInfo implements java.io.Serializable {
     private boolean mRowid;
     private boolean mRoomTable;
     private boolean mVirtualTable = false;
+    private String mVirtualTableModule = "";
+    private boolean mVirtualTableSupported = false;
 
     public TableInfo(String tablename,
                      String SQL,ArrayList<ColumnInfo> columnInfo,
@@ -42,7 +44,7 @@ public class TableInfo implements java.io.Serializable {
         this.mRowid = rowid;
         this.mRoomTable = roomTable;
         this.mEnclosedTableName = SQLCreateInterrogator.getEnclosedTableName(this);
-        this.mVirtualTable = isVirtualTable(SQL);
+        setVirtualTableAttributes();
     }
 
     public TableInfo(String tablename, String SQL) {
@@ -171,6 +173,22 @@ public class TableInfo implements java.io.Serializable {
         this.referencelevel = referencelevel;
     }
 
+    public String getVirtualTableModule() {
+        return mVirtualTableModule;
+    }
+
+    public void setVirtualTableModule(String virtualTableModule) {
+        this.mVirtualTableModule = virtualTableModule;
+    }
+
+    public boolean isVirtualTableSupported() {
+        return mVirtualTableSupported;
+    }
+
+    public void setVirtualTableSupported(boolean virtualTableSupported) {
+        this.mVirtualTableSupported = virtualTableSupported;
+    }
+
     public ArrayList<String> getPrimaryKeyList() {
         return mPrimaryKeyList;
     }
@@ -203,8 +221,26 @@ public class TableInfo implements java.io.Serializable {
         return !SQL.replace(" ","").toUpperCase().equals(SQLiteConstants.SQLKEYWORD_WITHOUTROWID.replace(" ",""));
     }
 
-    private boolean isVirtualTable(String SQL) {
-        return SQLCreateInterrogator.removeDoubleSpaces(SQL).toUpperCase().contains(SQLiteConstants.CLAUSE_CREATEVIRTTBL);
+    private void setVirtualTableAttributes() {
+        String baseUpperSQL = SQLCreateInterrogator.removeDoubleSpaces(mSQL).toUpperCase();
+        if (baseUpperSQL.contains(SQLiteConstants.CLAUSE_CREATEVIRTTBL)) {
+            mVirtualTable = true;
+            mVirtualTableModule = "";
+            String unendedModuleName =
+                    baseUpperSQL.substring(
+                            baseUpperSQL.indexOf(" " + SQLiteConstants.KEYWORD_USING + " ") + 2 + SQLiteConstants.KEYWORD_USING.length()
+                    );
+            mVirtualTableModule = unendedModuleName.substring(0,unendedModuleName.indexOf("(")).trim();
+            mVirtualTableSupported = false;
+            for (String s:SQLiteConstants.SUPPORTEDVIRTUALTABLEMODULES) {
+                if (s.equals(mVirtualTableModule)) {
+                    mVirtualTableSupported = true;
+                    break;
+                }
+            }
+        } else {
+            mVirtualTable = false;
+        }
     }
 
     public ColumnInfo getColumnInfoByName(String columnName) {

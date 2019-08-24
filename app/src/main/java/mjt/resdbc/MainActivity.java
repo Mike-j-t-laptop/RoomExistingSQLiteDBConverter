@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
     int mCurrentEntity = ENTITY_TABLE;
 
     Context mContext;
-    Button mConvert;
+    Button mConvert, mRefreshFileList;
     ListView mDBEntityLisView, mDBFilesListView;
     LinearLayout mDBInfoHdr, mDBInfo,  mDBPathInfoHdr, mConvertSection;
     TextView mSelectedDBInfoHdr, mDBName, mDBVersion,  mDBDiskSize, mDBPath,
@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
         mContext = this;
         ENTITYTITLE = this.getResources().getStringArray(R.array.entitytypes);
         setContentView(R.layout.activity_main);
+        mRefreshFileList = this.findViewById(R.id.refresh);
         mConvert = this.findViewById(R.id.convert);
         mDBFilesListView = this.findViewById(R.id.dbfileslist);
         (mDBEntityLisView = this.findViewById(R.id.dbentitieslist)).setVisibility(View.GONE);
@@ -108,6 +109,12 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
         mConversionDaoDirectoryEditText = this.findViewById(R.id.conversion_dao_directory);
 
         ExternalStoragePermissions.verifyStoragePermissions(this);
+        mRefreshFileList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                manageDBFilesListView();
+            }
+        });
         manageDBFilesListView();
         manageDatabaseInformationListeners();
         manageConvertButton();
@@ -182,6 +189,9 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
      * Part 1 (File List retrieval) as run on non UI thread
      */
     private void manageDBFilesListView() {
+        if (mDBFiles != null) {
+            mDBFiles.clear();
+        }
         new Thread(new Runnable() {
             @Override
             public void run() {

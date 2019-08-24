@@ -3,6 +3,7 @@
     <string name="main_title">Room Pre-Existing Database Conversion Tool</string>
     <string name="assetlistviewheader">Files found (click a File to select/convert)</string>
     <string name="selectedassetdbinfoheading">Selected Database Information</string>
+    <string name="refreshbutton">REFRESH</string>
     <string name="convertbutton">CONVERT</string>
     <string name="convert_result_ok">Successfully Converted</string>
     <string name="convert_result_not_ok">Issues Converting</string>
@@ -42,6 +43,7 @@
     <string name="entitytablefkeyscounthdr">FKeys</string>
     <string name="entitytabletriggercounthdr">Triggers</string>
     <string name="entitytableindexescounthdr">Indexes</string>
+    <string name="entitytablevirtualmodulehdr">Virtual Module</string>
     <string name="entitytableprimarykeyshdr">Primary Keys</string>
 
     <string name="entitycolumnnamehdr">Column Name</string>
