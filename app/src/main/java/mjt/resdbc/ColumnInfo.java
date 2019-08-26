@@ -10,7 +10,7 @@ import static mjt.resdbc.SQLiteConstants.AFFINITY_TEXT;
 
 public class ColumnInfo implements java.io.Serializable {
     private String mOriginalColumnName = "";
-    private String mOriginalAlternativeColumnName = "";
+    private String mOriginalEnclosedColumnName = "";
     private String mColumnName;
     private String mAlternativeColumnName = "";
     private String mOwningTable;
@@ -68,9 +68,9 @@ public class ColumnInfo implements java.io.Serializable {
         }
         // Likewise for the alternative column name (enclosed as per SQL)
         if (originalAlternativeColumnName.length() > 0) {
-            this.mOriginalAlternativeColumnName = originalAlternativeColumnName;
+            this.mOriginalEnclosedColumnName = originalAlternativeColumnName;
         } else {
-            this.mOriginalAlternativeColumnName = alternativeColumnName;
+            this.mOriginalEnclosedColumnName = alternativeColumnName;
         }
         this.mOwningTable = owningTable;
         this.mColumnType = columnType;
@@ -245,7 +245,7 @@ public class ColumnInfo implements java.io.Serializable {
     }
 
     public String getOriginalAlternativeColumnName() {
-        return mOriginalAlternativeColumnName;
+        return mOriginalEnclosedColumnName;
     }
 
     public String getOwningTable() {

@@ -22,7 +22,6 @@ public class ConvertDatabaseCreateIndexesSQL {
             }
             idx.append(CREATEINDEXINDEX);
             idx.append(swapEnclosersForRoom(ii.getIndexName())).append(" ON ");
-            String indexNameToCode = swapEnclosersForRoom(ii.getIndexName());
             String tableNameToCode = ii.getTableName();
             TableInfo tableInfoToUse = null;
             for (TableInfo ti: peadbi.getTableInfo()) {
