@@ -89,9 +89,25 @@ public class RoomEntityBuilder {
                 + foreignKeysCode
                 + ENTITYEND
         );
+        if (ti.isVirtualTable() && ti.isVirtualTableSupported()) {
+            entityCode.add("@" + capitalise(ti.getVirtualTableModule().toLowerCase()));
+        }
 
         entityCode.add(CLASSSTART + entityClassName + "{");
         ArrayList<String> gettersAndSettersCode = new ArrayList<>();
+        if (ti.isVirtualTable() && ti.isVirtualTableSupported() && ti.getVirtualTableModule().startsWith("FTS")) {
+            entityCode.add(INDENT + "@PrimaryKey");
+            entityCode.add(INDENT + "@ColumnInfo(name = \"rowid\"");
+            entityCode.add(INDENT + "private final Long rowid;");
+            gettersAndSettersCode.add(
+                    GETTERSTART + "Long " +
+                            GETTERNAMEPREFIX + "RowId" +
+                            GETTERNAMESUFFIX +
+                            GETTERRETURNPREFIX + lowerise("RowId") +
+                            GETTERRETURNSUFFIX
+            );
+        }
+
         for (ColumnInfo ci: ti.getColumns()) {
             String columnNameToCode = swapEnclosersForRoom(ci.getAlternativeColumnName());
             if (columnNameToCode.length() < 1) {

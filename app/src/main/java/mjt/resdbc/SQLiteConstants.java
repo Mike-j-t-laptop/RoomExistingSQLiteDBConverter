@@ -69,6 +69,9 @@ public class SQLiteConstants {
     public static final String KEYWORD_DEFERRABLE = "DEFERRABLE";
     public static final String KEYWORD_INITIALLY = "INITIALLY";
     public static final String KEYWORD_DEFERRED = "DEFERRED";
+    public static final String CLAUSE_IFNOTEXISTS = "IF NOT EXISTS";
+    public static final String GROUP_START = "(";
+    public static final String GROUP_END = ")";
 
     public static final String ROOMTYPE_BOOLEANPRIMARY = "boolean";
     public static final String ROOMTYPE_BOOLEANOBJECT = "Boolean";
