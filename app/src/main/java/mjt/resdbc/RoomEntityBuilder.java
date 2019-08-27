@@ -70,11 +70,11 @@ public class RoomEntityBuilder {
      * @param ti        The TableInformation
      * @return          The generated code
      */
-    public static ArrayList<String> extractEntityCode(PreExistingFileDBInspect peadbi, TableInfo ti) {
+    public static ArrayList<String> extractEntityCode(PreExistingFileDBInspect peadbi, TableInfo ti, String encloserStart, String encloserEnd) {
 
-        String primaryKeysCode = buildPrimaryKeysIfAny(ti);
-        String indiciesCode = buildIndexes(peadbi, ti);
-        String foreignKeysCode = buildForeignKeys(ti,peadbi);
+        String primaryKeysCode = buildPrimaryKeysIfAny(ti,encloserStart,encloserEnd);
+        String indiciesCode = buildIndexes(peadbi, ti,encloserStart,encloserEnd);
+        String foreignKeysCode = buildForeignKeys(ti,peadbi,encloserStart,encloserEnd);
         boolean primaryKeysDone = (primaryKeysCode.length() > 0);
         ArrayList<String> entityCode = new ArrayList<>();
         String tableNameToCode = swapEnclosersForRoom(ti.getEnclosedTableName());
@@ -83,7 +83,7 @@ public class RoomEntityBuilder {
         }
         String entityClassName = capitalise(ti.getTableName());
 
-        entityCode.add(ENTITYSTART + tableNameToCode + "\""
+        entityCode.add(ENTITYSTART + encloserStart + ti.getTableName() + encloserEnd  + "\""
                 + primaryKeysCode
                 + indiciesCode
                 + foreignKeysCode
@@ -109,10 +109,13 @@ public class RoomEntityBuilder {
         }
 
         for (ColumnInfo ci: ti.getColumns()) {
+            /*
             String columnNameToCode = swapEnclosersForRoom(ci.getAlternativeColumnName());
             if (columnNameToCode.length() < 1) {
                 columnNameToCode = ci.getColumnName();
             }
+
+             */
             if (ci.isRowidAlias() || ci.isAutoIncrementCoded() && !primaryKeysDone) {
                 entityCode.add(INDENT + PRIMARYKEYSTART + AUTOGENERATE + PRIMARYKEYEND);
             }
@@ -129,7 +132,7 @@ public class RoomEntityBuilder {
                 entityCode.add(INDENT + ENTITYNOTNULL);
                 notNullCoded = true;
             }
-            entityCode.add(INDENT + COLUMNINFOSTART + columnNameToCode + COLUMNINFOEND);
+            entityCode.add(INDENT + COLUMNINFOSTART + encloserStart + ci.getColumnName() + encloserEnd + COLUMNINFOEND);
             entityCode.add(INDENT + MEMBERSTART + ci.getObjectElementType() + " " + lowerise(ci.getColumnName()) + MEMBEREND);
             // Build getter code
             gettersAndSettersCode.add(
@@ -160,26 +163,17 @@ public class RoomEntityBuilder {
      * @param ti    The TableInfo object
      * @return      The ROOM Entity primaryKeys string
      */
-    private static String buildPrimaryKeysIfAny(TableInfo ti) {
+    private static String buildPrimaryKeysIfAny(TableInfo ti, String encloserStart, String encloserEnd) {
         ArrayList<String> columnsToCode = new ArrayList<>();
         List<String> pklist = ti.getPrimaryKeyList();
-        List<String> enclpklist = ti.getPrimaryKeyListAlternativeNames();
         if (ti.getPrimaryKeyList().size() > 1) {
             for (int i=0; i < pklist.size(); i++) {
-                if (enclpklist.get(i).length() > 0) {
-                    columnsToCode.add(swapEnclosersForRoom(enclpklist.get(i)));
-                } else {
-                    columnsToCode.add(pklist.get(i));
-                }
+                columnsToCode.add(encloserStart + pklist.get(i) + encloserEnd);
             }
         }
         if (columnsToCode.size() > 0 && ti.getPrimaryKeyList().size() == 0) {
             for (ColumnInfo ci: ti.getColumns()) {
-                if (ci.getAlternativeColumnName().length() > 0) {
-                    columnsToCode.add(swapEnclosersForRoom(ci.getAlternativeColumnName()));
-                } else {
-                    columnsToCode.add(ci.getColumnName());
-                }
+                    columnsToCode.add(encloserStart + ci.getColumnName() + encloserEnd);
             }
         }
         StringBuilder pk = new StringBuilder();
@@ -207,18 +201,18 @@ public class RoomEntityBuilder {
      * @param ti        The TableInfo object
      * @return          The ROOM indicies clause to be embedded in the @Entity for the table
      */
-    private static String buildIndexes(PreExistingFileDBInspect peadbi, TableInfo ti) {
+    private static String buildIndexes(PreExistingFileDBInspect peadbi, TableInfo ti, String encloserStart, String encloserEnd) {
         StringBuilder ix = new StringBuilder();
         for (IndexInfo ii: peadbi.getIndexInfo()) {
             //NOTE skip if a partial index (i.e. if a WHERE clause exists) as ROOM does not support partial indexes
-            if (ii.getTableName().equals(ti.getTableName()) || ii.getTableName().equals(ti.getEnclosedTableName()) && ii.getWhereClause().length() < 1) {
+            if (ii.getTableName().equals(ti.getTableName())  && ii.getWhereClause().length() < 1) {
                 if (ix.length() < 1) {
                     ix.append(INDICIES_START);
                 }
                 if (ix.length() > INDICIES_START.length()) {
                     ix.append(",\n").append(INDENT).append(INDENT);
                 }
-                ix.append(buildIndex(ii,ti));
+                ix.append(buildIndex(ii,ti, encloserStart, encloserEnd));
             }
         }
         if (ix.length() > 0) {
@@ -235,24 +229,27 @@ public class RoomEntityBuilder {
      * @return      The generated @Index clause with enclosed column name if they have been coded
      *              noting that the swapEnclosersForRoom method is applied
      */
-    private static String buildIndex(IndexInfo ii, TableInfo ti) {
+    private static String buildIndex(IndexInfo ii, TableInfo ti, String encloserStart, String encloserEnd) {
         StringBuilder ix = new StringBuilder().append(INDEXSTART);
-        ix.append(INDEXNAME).append(ii.getIndexName()).append("\"," );
+        ix.append(INDEXNAME).append(encloserStart).append(ii.getIndexName()).append(encloserEnd).append("\"," );
         if (ii.isUnique()) {
             ix.append(INDEXUNIQUE);
         }
         StringBuilder ixcols = new StringBuilder().append(INDEXVALUE);
         boolean afterfirst = false;
         for (IndexColumnInfo ici: ii.getColumns()) {
-            ColumnInfo ci = ti.getColumnInfoByName(ici.getColumnName());
             if (afterfirst) {
                 ixcols.append(",");
             }
+            /*
+            ColumnInfo ci = ti.getColumnInfoByName(ici.getColumnName());
+
             String columnToCode = swapEnclosersForRoom(ci.getAlternativeColumnName());
             if (columnToCode.length() < 1) {
                 columnToCode = ci.getColumnName();
             }
-            ixcols.append("\"").append(columnToCode).append("\"");
+            */
+            ixcols.append("\"").append(encloserStart).append(ici.getColumnName()).append(encloserEnd).append("\"");
             afterfirst = true;
         }
         return ix.append(ixcols.toString()).append("})").toString();
@@ -266,7 +263,7 @@ public class RoomEntityBuilder {
      * @param peadbi    The PreExistingAssetDBInspect object in which the child table is located
      * @return          The generated foreignKeys clause
      */
-    private static String buildForeignKeys(TableInfo ti, PreExistingFileDBInspect peadbi) {
+    private static String buildForeignKeys(TableInfo ti, PreExistingFileDBInspect peadbi, String encloserStart, String encloserEnd) {
 
         boolean afterfirstfkstart = false;
 
@@ -288,7 +285,7 @@ public class RoomEntityBuilder {
                     buildColumnList(
                             FOREIGNKEYCHILDCOLUMNSTART,
                             fki.getChildColumnNames(),
-                            ti)
+                            ti,encloserStart,encloserEnd)
             )
                     .append(
                             buildColumnList(
@@ -297,7 +294,8 @@ public class RoomEntityBuilder {
                                     getParentTable(
                                             peadbi,
                                             fki.getParentTableName()
-                                    )
+                                    ),
+                                    encloserStart,encloserEnd
                             )
                     )
                     .append("\n"+INDENT+INDENT+FOREIGNKEYEND);
@@ -313,20 +311,22 @@ public class RoomEntityBuilder {
      * @param ti        The TableInfo object to search for the enclosed column name
      * @return          The CSV list of columns including the pre-amble
      */
-    private static String buildColumnList(String starter, List<String> columns, TableInfo ti) {
+    private static String buildColumnList(String starter, List<String> columns, TableInfo ti, String encloserStart, String encloserEnd) {
 
         StringBuilder fkcl = new StringBuilder().append(starter);
         for (String s: columns) {
             if (fkcl.length() > starter.length()) {
                 fkcl.append(",");
             }
+            /*
             String columnToCode = s;
             for (ColumnInfo ci: ti.getColumns()) {
                 if (s.equals(ci.getColumnName()) && ci.getAlternativeColumnName().length() > 0) {
                     columnToCode = swapEnclosersForRoom(ci.getAlternativeColumnName());
                 }
             }
-            fkcl.append("\n"+INDENT+INDENT+INDENT+INDENT+"").append("\"").append(columnToCode).append("\"");
+             */
+            fkcl.append("\n"+INDENT+INDENT+INDENT+INDENT+"").append("\"").append(encloserStart).append(s).append(encloserEnd).append("\"");
         }
         return fkcl.append(FOREIGNKEYCOLUMNEND).toString();
     }

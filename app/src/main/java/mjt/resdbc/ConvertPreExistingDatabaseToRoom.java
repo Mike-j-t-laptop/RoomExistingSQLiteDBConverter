@@ -1,6 +1,5 @@
 package mjt.resdbc;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
@@ -13,10 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import static mjt.resdbc.ConvertDatabaseCreateIndexesSQL.buildIndexCreateSQL;
-import static mjt.resdbc.ConvertDatabaseCreateTriggerSQL.buildTriggerCreateSQL;
 import static mjt.resdbc.RoomCodeCommonUtils.capitalise;
-import static mjt.resdbc.RoomCodeCommonUtils.swapEnclosersForRoom;
 import static mjt.resdbc.RoomDaoBuilder.DAOEXTENSION;
 import static mjt.resdbc.RoomDaoBuilder.extractDaoCode;
 import static mjt.resdbc.RoomEntityBuilder.extractEntityCode;
@@ -40,7 +36,7 @@ public class ConvertPreExistingDatabaseToRoom {
 
     private static ArrayList<Message> sMessages;
 
-    public static int Convert(Context context, PreExistingFileDBInspect peadbi, String conversionDirectory, String entityCodeSubDirectory, String daoCodeSubDirectory, int logging_level) {
+    public static int Convert(PreExistingFileDBInspect peadbi, String conversionDirectory, String entityCodeSubDirectory, String daoCodeSubDirectory, int logging_level, String encloserStart, String encloserEnd) {
         sLoggingLevel = logging_level;
         int resultcode = RESULTCODE_NOTHINGDONE;
         sMessages = new ArrayList<>();
@@ -64,27 +60,43 @@ public class ConvertPreExistingDatabaseToRoom {
             addMessage(new Message(2,MESSAGELEVEL_INFO,"Conversion Directories Built for " + peadbi.getDatabaseName()));
         }
         resultcode--;
-        if (!buildEntityFiles(peadbi)) {
+        int rc = buildEntityFiles(peadbi,encloserStart,encloserEnd);
+        if (rc < 0) {
             addMessage(new Message(3,MESSAGELEVEL_ERROR,"Error Building Entity Files (JAVA code for ROOM Entities (Tables))"));
             return resultcode;
         } else {
-            addMessage(new Message(4,MESSAGELEVEL_INFO,
-                    "Entity Code Successfully Built for " + String.valueOf(peadbi.getTableCount()) +
-                            " Java Classes in\n\t" + ecsd.getPath())
-            );
+            if (rc == peadbi.getTableCount()) {
+                addMessage(new Message(4, MESSAGELEVEL_INFO,
+                        "Entity Code Successfully Built for " + String.valueOf(peadbi.getTableCount()) +
+                                " Java Classes in\n\t" + ecsd.getPath())
+                );
+            } else {
+                addMessage( new Message(10,MESSAGELEVEL_INFO,
+                        String.valueOf(rc) + " Entities built and " +
+                        String.valueOf(peadbi.getTableCount() - rc) +" Entities skipped (FTS tables)"
+                        )
+                );
+            }
         }
         resultcode--;
-        if (!buildDaoFiles(peadbi)) {
+        rc = buildDaoFiles(peadbi, encloserStart,encloserEnd);
+        if (rc < 0) {
             addMessage(new Message(5,MESSAGELEVEL_ERROR,"Error Building Dao Files (JAVA code for Data Acccess)"));
             return resultcode;
         } else {
-            addMessage(new Message(6,MESSAGELEVEL_INFO,
-                    "Dao Code Successfully Built for " + String.valueOf(peadbi.getTableCount()) +
-                            " Java Classes in\n\t" + daocd.getPath())
-            );
+            if (rc == peadbi.getTableCount()) {
+                addMessage(new Message(6, MESSAGELEVEL_INFO,
+                        "Dao Code Successfully Built for " + String.valueOf(peadbi.getTableCount()) +
+                                " Java Classes in\n\t" + daocd.getPath())
+                );
+            } else {
+                addMessage(new Message(11,MESSAGELEVEL_INFO,
+                        String.valueOf(rc) + " Daos Built and " +
+                        String.valueOf(peadbi.getTableCount() - rc) + " Daos Skipped (FTS Tables)"));
+            }
         }
         resultcode--;
-        if (!createConvertedDatabase(peadbi)){
+        if (!createConvertedDatabase(peadbi, encloserStart,encloserEnd)){
             addMessage( new Message(7,MESSAGELEVEL_ERROR,"Error(s) converting the Database from " + peadbi.getDatabasePath() + " to " + cd.getPath()));
             return resultcode;
         } else {
@@ -96,16 +108,16 @@ public class ConvertPreExistingDatabaseToRoom {
         return 0;
     }
 
-    public static int Convert(Context context, PreExistingFileDBInspect peadbi) {
-        return Convert(context, peadbi,null,null,null,MESSAGELEVEL_WARNING);
+    public static int Convert(PreExistingFileDBInspect peadbi, String encloserStart, String encloserEnd) {
+        return Convert(peadbi,null,null,null,MESSAGELEVEL_WARNING, encloserStart, encloserEnd);
     }
 
-    public static int DebugConvert(Context context, PreExistingFileDBInspect peadbi) {
-        return Convert(context,peadbi,null,null,null,MESSAGELEVEL_INFO);
+    public static int DebugConvert(PreExistingFileDBInspect peadbi, String encloserStart, String encloserEnd) {
+        return Convert(peadbi,null,null,null,MESSAGELEVEL_INFO, encloserStart, encloserEnd);
     }
 
-    public static int DebugConvert(Context context, PreExistingFileDBInspect peadbi, String conversionDirectory, String entitySubDirectory, String daoSubDirectory) {
-        return Convert(context, peadbi, conversionDirectory, entitySubDirectory,daoSubDirectory, MESSAGELEVEL_INFO);
+    public static int DebugConvert(PreExistingFileDBInspect peadbi, String conversionDirectory, String entitySubDirectory, String daoSubDirectory, String encloserStart, String encloserEnd) {
+        return Convert(peadbi, conversionDirectory, entitySubDirectory,daoSubDirectory, MESSAGELEVEL_INFO, encloserStart, encloserEnd);
     }
 
     /**
@@ -115,9 +127,11 @@ public class ConvertPreExistingDatabaseToRoom {
     private static boolean buildConversionDirectories() {
         ecsd = new File(Environment.getExternalStorageDirectory().getPath() + File.separator + sConversionDirectory + File.separator + sEntityCodeSubDirectory);
         daocd = new File(ecsd.getParent() + File.separator + sDAOCodeSubDirectory);
+        ecsd.delete();
         if (!ecsd.exists()) {
             ecsd.mkdirs();
         }
+        daocd.delete();
         if (!daocd.exists()) {
             daocd.mkdirs();
         }
@@ -130,11 +144,17 @@ public class ConvertPreExistingDatabaseToRoom {
      * @param peadbi    The PreExistingAssetDatabaseInspect object (i.e. all the database information)
      * @return          false if an io-error, else true
      */
-    private static boolean buildEntityFiles(PreExistingFileDBInspect peadbi) {
+    private static int buildEntityFiles(PreExistingFileDBInspect peadbi, String encloserStart, String encloserEnd) {
+        int rc = 0;
         ArrayList<String> code;
         for (TableInfo ti: peadbi.getTableInfo()) {
+
+            // Skip FTS tables
+            if (ti.isFTSTable() && ti.getTableName().toLowerCase().contains("_fts_".toLowerCase())) {
+                continue;
+            }
             File currentEntity = new File(ecsd.getPath() + File.separator + capitalise(ti.getTableName()) + ".java");
-            code = extractEntityCode(peadbi,ti);
+            code = extractEntityCode(peadbi,ti, encloserStart,encloserEnd);
             try {
                 FileWriter fw = new FileWriter(currentEntity);
                 for (String s: code) {
@@ -142,24 +162,28 @@ public class ConvertPreExistingDatabaseToRoom {
                 }
                 fw.flush();
                 fw.close();
+                rc++;
 
             } catch (IOException e) {
                 e.printStackTrace();
-                return false;
+                return -1;
             }
         }
-        return true;
+        return rc;
     }
-
 
     /**
      * Build basic DAO files
      * @param peadbi    The PreExisitingAssetDatabaseInspection object
      * @return          true if the files were successfully generated, else false
      */
-    private static boolean buildDaoFiles(PreExistingFileDBInspect peadbi) {
+    private static int buildDaoFiles(PreExistingFileDBInspect peadbi, String encloserStart, String EncloserEnd) {
+        int rc = 0;
         ArrayList<String> code;
         for (TableInfo ti: peadbi.getTableInfo()) {
+            if (ti.isFTSTable() && ti.getTableName().toLowerCase().contains("_fts_".toLowerCase())) {
+                continue;
+            }
             File currentDao = new File(daocd.getPath() + File.separator + capitalise(ti.getTableName()) + DAOEXTENSION + ".java");
             code = extractDaoCode(ti);
             try {
@@ -169,17 +193,18 @@ public class ConvertPreExistingDatabaseToRoom {
                 }
                 fw.flush();
                 fw.close();
+                rc++;
             } catch (IOException e) {
                 e.printStackTrace();
-                return false;
+                return -1;
             }
         }
-        return true;
+        return rc;
     }
 
     private static final String INSPECTDBATTACHNAME = "inspectdb";
 
-    private static boolean createConvertedDatabase(PreExistingFileDBInspect peadbi) {
+    private static boolean createConvertedDatabase(PreExistingFileDBInspect peadbi, String encloserStart, String encloserEnd) {
         peadbi.closeInspectionDatabase();
         boolean rv = true;
         String TAG = "CRTCNVRTDB";
@@ -209,12 +234,12 @@ public class ConvertPreExistingDatabaseToRoom {
                 }
                 continue;
             }
-            String tableNameToCode = swapEnclosersForRoom(ti.getEnclosedTableName());
-            if (tableNameToCode.length() < 1) {
-                tableNameToCode = swapEnclosersForRoom(ti.getTableName());
+            if (ti.isFTSTable()) {
+                addMessage(new Message(107, MESSAGELEVEL_WARNING,"TABLE " + ti.getTableName() + " appears to be an FTS table and has been skipped"));
+                continue;
             }
-            String tableCreateSQL = ConvertedDatabaseCreateTableSQL.createTableCreateSQL(peadbi, ti);
 
+            String tableCreateSQL = GenerateTableSQL.generateTableSQL(ti,encloserStart,encloserEnd);
             try {
                 Log.d(TAG,"Creating table " + ti.getTableName() + " using SQL as :-" + "\n\t" + tableCreateSQL);
                 // Create the Tables
@@ -223,7 +248,7 @@ public class ConvertPreExistingDatabaseToRoom {
 
             } catch (SQLiteException e) {
                 Log.d(TAG,"SQLite Error trying to create table " + ti.getTableName() +"\n\tError was " + e.getMessage());
-                addMessage(new Message(101,MESSAGELEVEL_ERROR,"SQLite Error trying to create or load table " + tableNameToCode + "\n\tError was " + e.getMessage() + "\n\t(check the log)"));
+                addMessage(new Message(101,MESSAGELEVEL_ERROR,"SQLite Error trying to create or load table " + ti.getTableName() + "\n\tError was " + e.getMessage() + "\n\t(check the log)"));
                 e.printStackTrace();
                 rv = false;
             }
@@ -231,32 +256,32 @@ public class ConvertPreExistingDatabaseToRoom {
             //String tableNameToCode = "main." + "`" + swapEnclosersForRoom(ti.getEnclosedTableName()) + "`";
             long originalRowCount = DatabaseUtils.queryNumEntries(db,INSPECTDBATTACHNAME + "." + ti.getTableName());
             totalOriginalRows = totalOriginalRows + originalRowCount;
-            Cursor csr1 = db.query(INSPECTDBATTACHNAME + "." + ti.getTableName(),new String[]{"count()"},null,null,null,null,null);
+            Cursor csr1 = db.query(INSPECTDBATTACHNAME + "." + encloserStart + ti.getTableName() + encloserEnd,new String[]{"count()"},null,null,null,null,null);
             if (csr1.moveToFirst()) {
                 tor = tor + csr1.getLong(0);
             }
             csr1.close();
-            String insertSQL = "INSERT OR IGNORE INTO main." + "`" + tableNameToCode+  "`" + " SELECT * FROM " + INSPECTDBATTACHNAME + "." + ti.getTableName() + " WHERE 1";
+            String insertSQL = "INSERT OR IGNORE INTO main." + encloserStart + ti.getTableName()+  encloserEnd + " SELECT * FROM " + INSPECTDBATTACHNAME + "." + encloserStart + ti.getTableName() + encloserEnd + " WHERE 1";
             //String insertSQL = "INSERT INTO " + "`" + ti.getTableName() + "`" + " SELECT * FROM " + INSPECTDBATTACHNAME + "." + ti.getTableName() + " WHERE 1";
             try {
                 db.execSQL(insertSQL);
-                long convertedRowCount = DatabaseUtils.queryNumEntries(db,tableNameToCode);
+                long convertedRowCount = DatabaseUtils.queryNumEntries(db,ti.getTableName());
 
                 totalCopiedRows = totalCopiedRows + convertedRowCount;
-                Cursor csr2 = db.query(tableNameToCode,new String[]{"count()"},null,null,null,null,null);
+                Cursor csr2 = db.query(ti.getTableName(),new String[]{"count()"},null,null,null,null,null);
                 if (csr2.moveToFirst()) {
                     tcr = tcr +  csr2.getLong(0);
                 }
                 csr2.close();
                 if (convertedRowCount < originalRowCount) {
                     addMessage(new Message(50,MESSAGELEVEL_WARNING,
-                            "Some rows not inserted into table " + tableNameToCode + "." +
+                            "Some rows not inserted into table " + ti.getTableName() + "." +
                                     "\n\tThe original table had " + String.valueOf(originalRowCount) + "rows, " + String.valueOf(convertedRowCount) + " rows were inserted."
                     ));
                 }
             } catch (SQLiteException e) {
-                Log.d(TAG,"SQLite Error trying to insert data into " + tableNameToCode +"\n\tError was " + e.getMessage() + "SQL was " + "\n\t" + insertSQL);
-                addMessage(new Message(102,MESSAGELEVEL_ERROR,"SQLite Error trying to insert data into  " + tableNameToCode + "SQL was " +
+                Log.d(TAG,"SQLite Error trying to insert data into " + ti.getTableName() +"\n\tError was " + e.getMessage() + "SQL was " + "\n\t" + insertSQL);
+                addMessage(new Message(102,MESSAGELEVEL_ERROR,"SQLite Error trying to insert data into  " + ti.getTableName() + "SQL was " +
                         "\n\t" + insertSQL +
                         "\n\tError was " + e.getMessage() + "\n\t(check the log)"));
                 e.printStackTrace();
@@ -265,7 +290,8 @@ public class ConvertPreExistingDatabaseToRoom {
         }
         for (TableInfo ti: peadbi.getTableInfo()) {
             if (ti.isVirtualTable() && ti.isVirtualTableSupported()) {
-                String tableCreateSQL = ConvertedDatabaseCreateVirtualTableSQL.createVirtualTableCreateSQL(peadbi,ti);
+                //String tableCreateSQL = ConvertedDatabaseCreateVirtualTableSQL.createVirtualTableCreateSQL(peadbi,ti);
+                String tableCreateSQL = GenerateTableSQL.generateVirtualTableSQL(ti,encloserStart,encloserEnd);
                 Log.d(TAG,"Creating Virtual Table " + ti.getTableName() + " using SQL as \n\t" + tableCreateSQL);
                 try {
                     db.execSQL(tableCreateSQL);
@@ -282,7 +308,7 @@ public class ConvertPreExistingDatabaseToRoom {
                 Cursor csr3 = db.query(tableName,null,null,null,null,null,null);
                 int vtrowcount = csr3.getCount();
                 if (vtrowcount < 1) {
-                    String insertSQL = "INSERT OR IGNORE INTO main." + tableName + " SELECT * FROM " + INSPECTDBATTACHNAME + "." + ti.getTableName() + " WHERE 1";
+                    String insertSQL = "INSERT OR IGNORE INTO main." + encloserStart + tableName + encloserEnd + " SELECT * FROM " + INSPECTDBATTACHNAME + "." + ti.getTableName() + " WHERE 1";
                     Log.d(TAG,"Populating Virtual Table " + ti.getTableName());
                     db.execSQL(insertSQL);
                 }
@@ -299,8 +325,7 @@ public class ConvertPreExistingDatabaseToRoom {
         }
 
         try {
-            //Build Indexes
-            for (String s: buildIndexCreateSQL(peadbi)) {
+            for (String s: GenerateIndexSQL.generateIndexSQL(peadbi,encloserStart,encloserEnd)) {
                 Log.d(TAG,"Creating INDEX using \n\t" + s);
                 db.execSQL(s);
             }
@@ -314,7 +339,7 @@ public class ConvertPreExistingDatabaseToRoom {
         addMessage(new Message(10,MESSAGELEVEL_INFO,String.valueOf(peadbi.getIndexCount()) + " Indexes built successfully."));
 
         try {
-            for (String s: buildTriggerCreateSQL(peadbi)) {
+            for (String s: GenerateTriggerSQL.generateTriggerSQL(peadbi,"`","`")) {
                 Log.d(TAG,"Creating TRIGGER using \n\t" + s);
                 db.execSQL(s);
             }
