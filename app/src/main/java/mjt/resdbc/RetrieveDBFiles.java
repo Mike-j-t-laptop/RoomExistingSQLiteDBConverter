@@ -27,10 +27,10 @@ public class RetrieveDBFiles {
         if (currentDirectory.isFile()) {
             return;
         }
-        Log.d("GETFILES","Checking Directory " + currentDirectory.getPath());
+        //Log.d("GETFILES","Checking Directory " + currentDirectory.getPath());
         File[] listedFiles = currentDirectory.listFiles();
         if (listedFiles == null) {
-            Log.d("GETFILES","Skipping Empty Directory" + currentDirectory.getPath());
+            //Log.d("GETFILES","Skipping Empty Directory" + currentDirectory.getPath());
             return;
         }
         for (File f : listedFiles) {
@@ -39,15 +39,15 @@ public class RetrieveDBFiles {
                 for (String s: new String[]{MainActivity.BASECONVERTDIRECTORY}) {
                     if(f.getName().equals(s)) {
                         skip = true;
-                        Log.d("GETFILES","Skipping Excluded Directory");
+                        //Log.d("GETFILES","Skipping Excluded Directory");
                         break;
                     }
                 }
                 if (!skip) getFiles(f.getPath());
             } else {
-                Log.d("GETFILES","Checking File "+ f.getPath());
+                //Log.d("GETFILES","Checking File "+ f.getPath());
                 if (isFileSQLiteDatabase(f)) {
-                    Log.d("GETFILES", "SQLITEDATABASE FOUND AT " + f.getPath());
+                    //Log.d("GETFILES", "SQLITEDATABASE FOUND AT " + f.getPath());
                     dbfiles.add(new FileEntry(f));
                 }
             }

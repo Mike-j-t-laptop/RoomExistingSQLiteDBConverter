@@ -159,10 +159,15 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
                         showConversionResults(
                                 (
                                         ConvertPreExistingDatabaseToRoom.Convert(
-                                                mContext,mCurrentPEFDBI, BASECONVERTDIRECTORY + File.separator +
+                                                mCurrentPEFDBI, BASECONVERTDIRECTORY + File.separator +
                                                         mConversionDirectoryEditText.getText().toString(),
                                                 mConversionEntityDirectoryEditText.getText().toString(),
-                                                mDAODirectory,ConvertPreExistingDatabaseToRoom.MESSAGELEVEL_ERROR)== 0));
+                                                mDAODirectory,ConvertPreExistingDatabaseToRoom.MESSAGELEVEL_ERROR,
+                                                "`","`"
+                                        )
+                                                == 0
+                                )
+                        );
                     }
                 }).start();
             }

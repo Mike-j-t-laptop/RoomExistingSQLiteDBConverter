@@ -217,9 +217,25 @@ public class TableInfo implements java.io.Serializable {
         this.mRowid = rowid;
     }
 
+    public boolean isFTSTable() {
+        for (ColumnInfo ci: mColumnInfos) {
+            if (
+                    (ci.getColumnName().toUpperCase().equals("docid".toUpperCase())
+                    || ci.getColumnName().toUpperCase().equals("blockid".toUpperCase())
+                    || ci.getColumnName().toUpperCase().equals("start_block".toUpperCase()))
+                    && mTableName.toUpperCase().contains("_fts".toUpperCase())
+            ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private boolean isWithoutRowid(String SQL) {
         return !SQL.replace(" ","").toUpperCase().equals(SQLiteConstants.SQLKEYWORD_WITHOUTROWID.replace(" ",""));
     }
+
+
 
     private void setVirtualTableAttributes() {
         String baseUpperSQL = SQLCreateInterrogator.removeDoubleSpaces(mSQL).toUpperCase();

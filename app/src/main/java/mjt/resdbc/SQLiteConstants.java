@@ -70,8 +70,20 @@ public class SQLiteConstants {
     public static final String KEYWORD_INITIALLY = "INITIALLY";
     public static final String KEYWORD_DEFERRED = "DEFERRED";
     public static final String CLAUSE_IFNOTEXISTS = "IF NOT EXISTS";
+    public static final String KEYWORD_NOTNULL = "NOT NULL";
+    public static final String CLAUSE_PRIMARYKEY = "PRIMARY KEY";
+    public static final String CLAUSE_AUTOINCREMENT = CLAUSE_PRIMARYKEY + " AUTOINCREMENT " + KEYWORD_NOTNULL;
     public static final String GROUP_START = "(";
     public static final String GROUP_END = ")";
+
+    public static final String KEYWORD_ON = "ON";
+
+    public static final String CLAUSE_FOREIGNKEY_START = "FOREIGN KEY";
+    public static final String KEYWORD_REFERENCES = "REFERENCES";
+    public static final String CLAUSE_FOREIGNKEY_ONUPDATE =  KEYWORD_ON +  " UPDATE";
+    public static final String CLAUSE_FOREIGNKEY_ONDELETE =  KEYWORD_ON + " DELETE";
+    public static final String CLAUSE_FOREIGNKEY_DEFERRABLE = "DEFERRABLE INITIALLY DEFERRED";
+
 
     public static final String ROOMTYPE_BOOLEANPRIMARY = "boolean";
     public static final String ROOMTYPE_BOOLEANOBJECT = "Boolean";
