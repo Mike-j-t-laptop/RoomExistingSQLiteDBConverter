@@ -18,7 +18,7 @@ public class GenerateIndexSQL {
                     .append(encloserStart)
                     .append(ii.getIndexName())
                     .append(encloserEnd);
-            indexSQL.append(SQLiteConstants.KEYWORD_ON).append(" ")
+            indexSQL.append(" ").append(SQLiteConstants.KEYWORD_ON).append(" ")
                     .append(encloserStart).append(ii.getTableName()).append(encloserEnd).append(SQLiteConstants.GROUP_START);
             boolean afterfirst = false;
             for (IndexColumnInfo ici: ii.getColumns()) {

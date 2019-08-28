@@ -70,17 +70,22 @@ public class RoomEntityBuilder {
      * @param ti        The TableInformation
      * @return          The generated code
      */
-    public static ArrayList<String> extractEntityCode(PreExistingFileDBInspect peadbi, TableInfo ti, String encloserStart, String encloserEnd) {
+    public static ArrayList<String> extractEntityCode(PreExistingFileDBInspect peadbi, TableInfo ti, String encloserStart, String encloserEnd, String packageName) {
+
+        ArrayList<String> entityCode = new ArrayList<>();
+
+        if (encloserStart.equals("`") && encloserEnd.equals("`")) {
+            encloserStart = "";
+            encloserEnd = "";
+        }
+        if (packageName.length() > 0) {
+            entityCode.add("package " + packageName + "\n");
+        }
 
         String primaryKeysCode = buildPrimaryKeysIfAny(ti,encloserStart,encloserEnd);
         String indiciesCode = buildIndexes(peadbi, ti,encloserStart,encloserEnd);
         String foreignKeysCode = buildForeignKeys(ti,peadbi,encloserStart,encloserEnd);
         boolean primaryKeysDone = (primaryKeysCode.length() > 0);
-        ArrayList<String> entityCode = new ArrayList<>();
-        String tableNameToCode = swapEnclosersForRoom(ti.getEnclosedTableName());
-        if (tableNameToCode.length() < 1) {
-            tableNameToCode = ti.getTableName();
-        }
         String entityClassName = capitalise(ti.getTableName());
 
         entityCode.add(ENTITYSTART + encloserStart + ti.getTableName() + encloserEnd  + "\""
@@ -241,14 +246,6 @@ public class RoomEntityBuilder {
             if (afterfirst) {
                 ixcols.append(",");
             }
-            /*
-            ColumnInfo ci = ti.getColumnInfoByName(ici.getColumnName());
-
-            String columnToCode = swapEnclosersForRoom(ci.getAlternativeColumnName());
-            if (columnToCode.length() < 1) {
-                columnToCode = ci.getColumnName();
-            }
-            */
             ixcols.append("\"").append(encloserStart).append(ici.getColumnName()).append(encloserEnd).append("\"");
             afterfirst = true;
         }
@@ -318,14 +315,6 @@ public class RoomEntityBuilder {
             if (fkcl.length() > starter.length()) {
                 fkcl.append(",");
             }
-            /*
-            String columnToCode = s;
-            for (ColumnInfo ci: ti.getColumns()) {
-                if (s.equals(ci.getColumnName()) && ci.getAlternativeColumnName().length() > 0) {
-                    columnToCode = swapEnclosersForRoom(ci.getAlternativeColumnName());
-                }
-            }
-             */
             fkcl.append("\n"+INDENT+INDENT+INDENT+INDENT+"").append("\"").append(encloserStart).append(s).append(encloserEnd).append("\"");
         }
         return fkcl.append(FOREIGNKEYCOLUMNEND).toString();

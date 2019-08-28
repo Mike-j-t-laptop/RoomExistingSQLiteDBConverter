@@ -23,8 +23,16 @@ public class RoomDaoBuilder {
     private static final String DAOQUERYMETHODPREFIX = "getEvery";
     private static final String DAOMANYSUFFIX = "...";
 
-    public static ArrayList<String> extractDaoCode(TableInfo ti) {
+    public static ArrayList<String> extractDaoCode(TableInfo ti, String encloserStart, String encloserEnd, String packageName) {
+        if (encloserStart.equals("`") && encloserEnd.equals("`")) {
+            encloserStart = "";
+            encloserEnd = "";
+        }
         ArrayList<String> rv = new ArrayList<>();
+
+        if (packageName.length() > 0) {
+            rv.add("package " + packageName + "\n");
+        }
         rv.add("@Dao");
         rv.add("interface " + capitalise(ti.getTableName()) + DAOEXTENSION + "{");
         rv.add("");
@@ -45,12 +53,9 @@ public class RoomDaoBuilder {
         rv.add("");
         rv.add(INDENT + DAODELETEANNOTATION);
         String tableNameToCode =  swapEnclosersForRoom(ti.getEnclosedTableName());
-        if (tableNameToCode.length() < 1) {
-            tableNameToCode = ti.getTableName();
-        }
         rv.add(INDENT + DAODELETEMETHODPREFIX + capitalise(ti.getTableName()) + "(" + capitalise(ti.getTableName()) + DAOMANYSUFFIX + " " + lowerise(ti.getTableName()) + ");");
         rv.add("");
-        rv.add(INDENT + DAOQUERYANNOTATIONSTART + tableNameToCode + DAOQUERYANNOTATIONEND);
+        rv.add(INDENT + DAOQUERYANNOTATIONSTART + encloserStart + ti.getTableName() + encloserEnd + DAOQUERYANNOTATIONEND);
         rv.add(INDENT + "List<" + capitalise(ti.getTableName()) + "> " +
                 DAOQUERYMETHODPREFIX + capitalise(ti.getTableName()) + "();");
         rv.add("}");
