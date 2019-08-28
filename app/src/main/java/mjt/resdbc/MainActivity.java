@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -50,7 +51,9 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
     TextView mSelectedDBInfoHdr, mDBName, mDBVersion,  mDBDiskSize, mDBPath,
             mDBTablesHdr, mDBColumnsHdr, mDBIndexesHdr, mDBFrgnKeysHdr, mDBTriggersHdr,mDBViewsHdr,
             mDBTables,mDBColumns, mDBIndexes, mDBFrgnKeys, mDBTriggers, mDBViews, mDBEntitiesListHdr;
-    EditText mConversionDirectoryEditText, mConversionEntityDirectoryEditText, mConversionDaoDirectoryEditText;
+    EditText mConversionPackageNameEditText,
+            mConversionDirectoryEditText, mConversionEntityDirectoryEditText, mConversionDaoDirectoryEditText;
+    CheckBox mSafeMode;
 
     ArrayList<FileEntry> mDBFiles;
     ArrayAdapter<FileEntry> mDBFilesAA;
@@ -70,7 +73,10 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
     ArrayList<ViewInfo> mCurrentViews;
     PreExistingFileDBInspect mCurrentPEFDBI;
 
-    String mConversionDirectory = "", mEntityDirectory = "java", mDAODirectory = mEntityDirectory;
+    String mConversionDirectory = "",
+            mEntityDirectory = "java",
+            mDAODirectory = mEntityDirectory,
+            mConversionPackageName = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +113,8 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
         mConversionDirectoryEditText = this.findViewById(R.id.conversion_directory);
         mConversionEntityDirectoryEditText = this.findViewById(R.id.conversion_entity_directory);
         mConversionDaoDirectoryEditText = this.findViewById(R.id.conversion_dao_directory);
+        mConversionPackageNameEditText = this.findViewById(R.id.projectpackage);
+        mSafeMode = this.findViewById(R.id.safemode);
 
         ExternalStoragePermissions.verifyStoragePermissions(this);
         mRefreshFileList.setOnClickListener(new View.OnClickListener() {
@@ -156,6 +164,18 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
+                        String encloserStart = "`", encloserEnd = encloserStart;
+                        String packageName = "";
+                        if (mConversionPackageNameEditText.getText() != null && mConversionPackageNameEditText.getText().toString().length() > 0) {
+                            packageName = mConversionPackageNameEditText.getText().toString();
+                            if (!packageName.endsWith(";")) {
+                                packageName = packageName + ";";
+                            }
+                        }
+                        if (!mSafeMode.isChecked()) {
+                            encloserStart = "";
+                            encloserEnd = encloserStart;
+                        }
                         showConversionResults(
                                 (
                                         ConvertPreExistingDatabaseToRoom.Convert(
@@ -163,7 +183,8 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
                                                         mConversionDirectoryEditText.getText().toString(),
                                                 mConversionEntityDirectoryEditText.getText().toString(),
                                                 mDAODirectory,ConvertPreExistingDatabaseToRoom.MESSAGELEVEL_ERROR,
-                                                "`","`"
+                                                encloserStart, encloserEnd, //<<<<<<<<<< the enclosers typically should be empty or `
+                                                packageName
                                         )
                                                 == 0
                                 )

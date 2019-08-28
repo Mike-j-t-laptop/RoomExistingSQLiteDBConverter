@@ -36,7 +36,11 @@ public class ConvertPreExistingDatabaseToRoom {
 
     private static ArrayList<Message> sMessages;
 
-    public static int Convert(PreExistingFileDBInspect peadbi, String conversionDirectory, String entityCodeSubDirectory, String daoCodeSubDirectory, int logging_level, String encloserStart, String encloserEnd) {
+    public static int Convert(PreExistingFileDBInspect peadbi,
+                              String conversionDirectory, String entityCodeSubDirectory, String daoCodeSubDirectory,
+                              int logging_level,
+                              String encloserStart, String encloserEnd, String packageName) {
+
         sLoggingLevel = logging_level;
         int resultcode = RESULTCODE_NOTHINGDONE;
         sMessages = new ArrayList<>();
@@ -60,7 +64,7 @@ public class ConvertPreExistingDatabaseToRoom {
             addMessage(new Message(2,MESSAGELEVEL_INFO,"Conversion Directories Built for " + peadbi.getDatabaseName()));
         }
         resultcode--;
-        int rc = buildEntityFiles(peadbi,encloserStart,encloserEnd);
+        int rc = buildEntityFiles(peadbi,encloserStart,encloserEnd,packageName);
         if (rc < 0) {
             addMessage(new Message(3,MESSAGELEVEL_ERROR,"Error Building Entity Files (JAVA code for ROOM Entities (Tables))"));
             return resultcode;
@@ -79,7 +83,7 @@ public class ConvertPreExistingDatabaseToRoom {
             }
         }
         resultcode--;
-        rc = buildDaoFiles(peadbi, encloserStart,encloserEnd);
+        rc = buildDaoFiles(peadbi, encloserStart,encloserEnd, packageName);
         if (rc < 0) {
             addMessage(new Message(5,MESSAGELEVEL_ERROR,"Error Building Dao Files (JAVA code for Data Acccess)"));
             return resultcode;
@@ -108,18 +112,6 @@ public class ConvertPreExistingDatabaseToRoom {
         return 0;
     }
 
-    public static int Convert(PreExistingFileDBInspect peadbi, String encloserStart, String encloserEnd) {
-        return Convert(peadbi,null,null,null,MESSAGELEVEL_WARNING, encloserStart, encloserEnd);
-    }
-
-    public static int DebugConvert(PreExistingFileDBInspect peadbi, String encloserStart, String encloserEnd) {
-        return Convert(peadbi,null,null,null,MESSAGELEVEL_INFO, encloserStart, encloserEnd);
-    }
-
-    public static int DebugConvert(PreExistingFileDBInspect peadbi, String conversionDirectory, String entitySubDirectory, String daoSubDirectory, String encloserStart, String encloserEnd) {
-        return Convert(peadbi, conversionDirectory, entitySubDirectory,daoSubDirectory, MESSAGELEVEL_INFO, encloserStart, encloserEnd);
-    }
-
     /**
      * create the Conversion Directory and the entities sub-directory
      * @return false if after making the directories they don no exist, true if OK.
@@ -144,7 +136,7 @@ public class ConvertPreExistingDatabaseToRoom {
      * @param peadbi    The PreExistingAssetDatabaseInspect object (i.e. all the database information)
      * @return          false if an io-error, else true
      */
-    private static int buildEntityFiles(PreExistingFileDBInspect peadbi, String encloserStart, String encloserEnd) {
+    private static int buildEntityFiles(PreExistingFileDBInspect peadbi, String encloserStart, String encloserEnd, String packageName) {
         int rc = 0;
         ArrayList<String> code;
         for (TableInfo ti: peadbi.getTableInfo()) {
@@ -154,7 +146,7 @@ public class ConvertPreExistingDatabaseToRoom {
                 continue;
             }
             File currentEntity = new File(ecsd.getPath() + File.separator + capitalise(ti.getTableName()) + ".java");
-            code = extractEntityCode(peadbi,ti, encloserStart,encloserEnd);
+            code = extractEntityCode(peadbi,ti, encloserStart,encloserEnd,packageName);
             try {
                 FileWriter fw = new FileWriter(currentEntity);
                 for (String s: code) {
@@ -177,7 +169,7 @@ public class ConvertPreExistingDatabaseToRoom {
      * @param peadbi    The PreExisitingAssetDatabaseInspection object
      * @return          true if the files were successfully generated, else false
      */
-    private static int buildDaoFiles(PreExistingFileDBInspect peadbi, String encloserStart, String EncloserEnd) {
+    private static int buildDaoFiles(PreExistingFileDBInspect peadbi, String encloserStart, String encloserEnd, String packageName) {
         int rc = 0;
         ArrayList<String> code;
         for (TableInfo ti: peadbi.getTableInfo()) {
@@ -185,7 +177,7 @@ public class ConvertPreExistingDatabaseToRoom {
                 continue;
             }
             File currentDao = new File(daocd.getPath() + File.separator + capitalise(ti.getTableName()) + DAOEXTENSION + ".java");
-            code = extractDaoCode(ti);
+            code = extractDaoCode(ti, encloserStart,encloserEnd, packageName);
             try {
                 FileWriter fw = new FileWriter(currentDao);
                 for (String s: code) {
