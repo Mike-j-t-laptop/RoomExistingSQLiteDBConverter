@@ -5,8 +5,8 @@
     <string name="selectedassetdbinfoheading">Selected Database Information</string>
     <string name="refreshbutton">REFRESH</string>
     <string name="convertbutton">CONVERT</string>
-    <string name="convert_package_label">Package Name (if known)</string>
-    <string name="convert_safemode_label">Safemode (Names enclosed in ``)</string>
+    <string name="convert_package_label">Package Name</string>
+    <string name="convert_safemode_label">Safemode</string>
     <string name="convert_result_ok">Successfully Converted</string>
     <string name="convert_result_not_ok">Issues Converting</string>
     <string name="convert_main_directory_prefix">Convert_</string>
