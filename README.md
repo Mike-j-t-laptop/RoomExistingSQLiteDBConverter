@@ -38,7 +38,7 @@ A dialog will appear detailing the results.
 An ideal conversion is one where the copied rows matches the original rows and there are no warnings.
 However, there may be accetable/managable exceptions.
 
-#Testing
+# Testing
 
 Limited testing has been undertaken. Initally the Chinook Database was used.
 
