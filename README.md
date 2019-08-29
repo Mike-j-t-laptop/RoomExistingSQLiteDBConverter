@@ -15,7 +15,7 @@ That is the App produces 3 distinct sets of data :-
 
   -  ***Note**, the generated code lacks the import statements (this is intentional, as they can vary). As such every generated file should be visited to resolve the imports (and if no package has been supplied the package statement as well).*
 
-##An Overview of how the App works ##
+## An Overview of how the App works ##
 
 
 ### 1. Retrieves the databases
