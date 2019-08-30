@@ -1,7 +1,5 @@
 package mjt.resdbc;
 
-import android.text.method.QwertyKeyListener;
-
 public class GenerateForeignKeySQL {
 
     public static String generateForeignKeySQL(TableInfo ti, String encloserStart, String encloserEnd) {
