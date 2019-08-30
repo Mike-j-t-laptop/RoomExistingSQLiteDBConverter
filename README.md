@@ -20,12 +20,13 @@ That is the App produces 3 distinct sets of data :-
 
 ### 1. Retrieves the databases
 
-1. The App initially searches the External Publc Storage (often called sdcard (but not on the an sdcard)) for databases, 
-except any in the reserved directory RoomDBConverterDBConversions and lists the databases (includes checking the header).
+1. The App initially searches the External Publc Storage (often called sdcard (but typically not on an sdcard)) for SQLite databases (it looks for/at the SQLite header), 
+except any in the reserved directory **RoomDBConverterDBConversions** and lists the databases.
 Note encrypted databases are not handled.
 
 - **Note**, when first run, permission will be requested. If not provided no Database will be listed.
 - The **REFRESH** button will refresh the list (e.g. after adding a database).
+- The **RoomDBConverterDBConversions** directory is where the data from the conversion (the databases and the java code) is placed.
 
 ### 2. Inspects the selected database
 2. Selecting a Database file, display information about the Database, and initially the Tables.
@@ -37,7 +38,7 @@ Clicking Tables, Columns, Indexes, FK, Triggers or Views, switches to display in
   1. Red indicates a more prominent change or issue.
 (e.g. a type affinity of DATETIME is changed to TEXT (Final) as the derived affinity is NUMERIC which is not supported by Room).
 
-### 3. Tailoring the Conversion output
+### 3. Tailors the Conversion output
 
 The **Convert** section allows :-
 
@@ -144,13 +145,279 @@ If there are issues then the dialog should display such issues.
 
 # Testing
 
-Limited testing has been undertaken. Initally the Chinook Database was used.
+Limited testing has been undertaken. Initally 3 Databases were used :-
 
-The chinnok database has been converted successfully.
-However, there is a persistent issue in that 1 row is ignored in the employee table. 
-This is because the employee table has a Foreign key, that references the employee table and the 
-top-most employee is defined as not reporting to anyone by it's reportto value being null.
+- The previously mentioned [Chinook Database](http://https://www.sqlitetutorial.net/sqlite-sample-database/)
+ - 11 Tables, with 64 Columns, 10 Indxexes, 11 Foreign keys. 
+- A version of the King James Bible (include FTS (Full Text Search)).
+ - 2 Tables and an FTS table that generates 3 other tables. 
+- A Shopping List database.
+ - 8 Tables, 54 Columns, 3 Indxexes.
 
-Although this is valid/usable in SQLite, Room insists that parent's are indexed and have the NOT NULL attribute.
-As such the table cannot be created to be used by room and include this row.
-The converted database has 15606 rows (out of 15607 rows for all tables).
+
+For each an initial App was created with the main activity including methods to copy the database from the assets folder which is invoked prior to the build of the ROOM database, and also methods using the copied database, invoked after the room build, to access the data as a prrof of conversion. 
+
+For example, MainActivity.java for the Shopwise database was :-
+
+	public class MainActivity extends AppCompatActivity {
+	    
+	    ShopwiseDatabase mRoomDB;
+	    
+	    @Override
+	    protected void onCreate(Bundle savedInstanceState) {
+	    super.onCreate(savedInstanceState);
+	    setContentView(R.layout.activity_main);
+	    /**
+	     * The following code can be used to copy the database from the assets file before Room
+	     * as an alternative to using the Room createFromAsset.
+	     * Note that if used then the Room createFromAsset will do nothing
+	     */
+	    //Start of code for copying database from the assets
+	    copyDBFromAssets(this,ShopwiseDatabase.ASSETFILENAME,ShopwiseDatabase.DBNAME);
+	    //Dump the table create SQL to the log for
+	    SQLiteDatabase db = SQLiteDatabase.openDatabase(this.getDatabasePath(ShopwiseDatabase.DBNAME).getPath(),null,SQLiteDatabase.OPEN_READWRITE);
+	    Cursor csr = db.query("sqlite_master",new String[]{"sql"},"type='table'",null,null,null,null);
+	    
+	    while (csr.moveToNext()) {
+	    Log.d("TABLESQL",csr.getString(0));
+	    }
+	    csr.close();
+	    db.close();
+	    //End of code for copying and dumping the pre-room copied database
+	    
+	    // Build the Room database (note for testing/brevity run on main thread)
+	    mRoomDB = Room.databaseBuilder(this,ShopwiseDatabase.class,ShopwiseDatabase.DBNAME)
+	    //.createFromAsset(ChinookDatabase.DBNAME) //<<<<<<<<<< uses Room's Convert (will do nothing if asset already copied)
+	    .allowMainThreadQueries()
+	    .build();
+	    
+        //Use each Table's getEvery????? method to extract all rows from the table (?????)
+	    dumpObject((List)mRoomDB.getAislesDao().getEveryAisles());
+	    dumpObject((List)mRoomDB.getAppValuesDao().getEveryAppvalues());
+	    dumpObject((List)mRoomDB.getProductsDao().getEveryProducts());
+	    dumpObject((List)mRoomDB.getProductUsageDao().getEveryProductusage());
+	    dumpObject((List)mRoomDB.getRulesDao().getEveryRules());
+	    dumpObject((List)mRoomDB.getShopListDao().getEveryShoplist());
+	    dumpObject((List)mRoomDB.getShopsDao().getEveryShops());
+	    dumpObject((List)mRoomDB.getStorageDao().getEveryStorage());
+	    }
+	    
+	    /**
+	     * Dump a few extracted objects using the toString method (typically the default)
+	     * @param objectListThe list of objects
+	     */
+	    private void dumpObject(List<Object> objectList) {
+	    int maxToDisplay = 5;
+	    int displayed = 0;
+	    Log.d("OBJECTDUMP","Dumping a maximum of " + String.valueOf(maxToDisplay) + " objects from " + String.valueOf(objectList.size()) +".");
+	    
+	    for (Object o: objectList) {
+	    if (displayed >= maxToDisplay) break;
+	    if (displayed == 0) {
+	    
+	    }
+	    Log.d("OBJECTDUMP","Object as from class " + o.getClass().getName().toString() + " String represntation is" + o.toString());
+	    displayed++;
+	    }
+	    }
+	    
+	    /**
+	     * Copy the database from the assets folder, as an alternative to the ROOM createFromAsset
+	     * @param context   The context (for determining the database location and retrieving the asset)
+	     * @param assetFileName The path of the asset file within the assets folder
+	     * @param databaseName  The name of the database (typically the same but can be different if not using createFromAsset)
+	     */
+	    private void copyDBFromAssets(Context context, String assetFileName, String databaseName) {
+	    if (checkIfDBExists(context,databaseName)) return;
+	    File databaseFile = new File(context.getDatabasePath(databaseName).toString());
+	    try {
+	    InputStream is = context.getAssets().open(assetFileName);
+	    OutputStream os = new FileOutputStream(databaseFile);
+	    byte[] buffer = new byte[1024 * 32];
+	    int length;
+	    while ((length = is.read(buffer)) > 0) {
+	    os.write(buffer,0,length);
+	    }
+	    os.flush();
+	    os.close();
+	    is.close();
+	    
+	    } catch (IOException e) {
+	    e.printStackTrace();
+	    throw new RuntimeException("Error copying asset database");
+	    }
+	    }
+	    
+	    /**
+	     * Check if the database exists and if not that any intermediate directories exist
+	     * @param context   The context (for determining the database path)
+	     * @param databaseName  The database name
+	     * @return  True if the database already exists, false if not
+	     */
+	    private boolean checkIfDBExists(Context context, String databaseName) {
+	    File dbfile = new File(context.getDatabasePath(databaseName).toString());
+	    if (dbfile.exists()) return true;
+	    if (!dbfile.getParentFile().exists()) {
+	    dbfile.getParentFile().mkdirs();
+	    }
+	    return false;
+	    }
+	}
+
+In addition to the above a second file, the @Database file was manually created. For the ShopWise database the file **ShopwiseDatabase.java** was :-
+
+	@Database(version = 1, entities = {
+	        Aisles.class,
+	        Appvalues.class,
+	        Products.class,
+	        Productusage.class,
+	        Rules.class,
+	        Shoplist.class,
+	        Shops.class,
+	        Storage.class
+	})
+	
+	public abstract class ShopwiseDatabase extends RoomDatabase {
+	
+	    public static final String DBNAME = "Shopwise";
+	    public static final String ASSETFILENAME = "ShopWiseDB_201904202247.bkp";
+	
+	    public abstract AislesDao getAislesDao();
+	    public abstract AppvaluesDao getAppValuesDao();
+	    public abstract ProductsDao getProductsDao();
+	    public abstract ProductusageDao getProductUsageDao();
+	    public abstract RulesDao getRulesDao();
+	    public abstract ShoplistDao getShopListDao();
+	    public abstract ShopsDao getShopsDao();
+	    public abstract StorageDao getStorageDao();
+	}
+
+All the other 16 files (an @Entity file and an @Dao file per table) were generated by the App, copied into the App using Android Studio's **Device Explorer**, and then modified to generate the **import** statements.
+
+Screen shot from the Device Explorer Window :-
+
+![Example 004](https://i.imgur.com/rkEaaQW.png)
+
+1. Is the reserved conversion Directory into which all conversions are placed.
+2. Is the sub-directory for the selected Shopwise database (if one of the others were selected, as the database name differs then it would have it's own directory).
+3. Is the converted database file that is copied to the assets folder.
+
+
+In addition to writing the code the database file is copied to the App's assets folder.
+
+The App when run produces the following output (not that SafeMode was used and hence component names are enclosed in ``) :-
+
+	2019-08-30 12:10:02.843 32047-32047/exacnv.exampleconvertedshopwisedb D/TABLESQL: CREATE TABLE android_metadata (locale TEXT)
+	2019-08-30 12:10:02.843 32047-32047/exacnv.exampleconvertedshopwisedb D/TABLESQL: CREATE TABLE `shops`(`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,`shoporder` INTEGER,`shopname` TEXT,`shopstreet` TEXT,`shopcity` TEXT,`shopstate` TEXT,`shopnotes` TEXT)
+	2019-08-30 12:10:02.843 32047-32047/exacnv.exampleconvertedshopwisedb D/TABLESQL: CREATE TABLE sqlite_sequence(name,seq)
+	2019-08-30 12:10:02.843 32047-32047/exacnv.exampleconvertedshopwisedb D/TABLESQL: CREATE TABLE `aisles`(`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,`aisleshopref` INTEGER,`aisleorder` INTEGER,`aislename` TEXT)
+	2019-08-30 12:10:02.843 32047-32047/exacnv.exampleconvertedshopwisedb D/TABLESQL: CREATE TABLE `products`(`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,`productname` TEXT,`productnotes` TEXT,`productstorageref` INTEGER,`productstorageorder` INTEGER)
+	2019-08-30 12:10:02.843 32047-32047/exacnv.exampleconvertedshopwisedb D/TABLESQL: CREATE TABLE `productusage`(`productusageproductref` INTEGER NOT NULL,`productusageaisleref` INTEGER NOT NULL,`productusagecost` REAL,`productusagebuycount` INTEGER,`productusagefirstbuydate` INTEGER,`productusagelatestbuydate` INTEGER,`productusageorder` INTEGER,`productusagerulesuggestflag` INTEGER,`productusagechecklistflag` INTEGER,`productusagechecklistcount` INTEGER,PRIMARY KEY(`productusageproductref`,`productusageaisleref`))
+	2019-08-30 12:10:02.843 32047-32047/exacnv.exampleconvertedshopwisedb D/TABLESQL: CREATE TABLE `shoplist`(`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,`shoplistproductref` INTEGER,`shoplistaisleref` INTEGER,`shoplistdateadded` INTEGER,`shoplistnumbertoget` INTEGER,`shoplistdone` INTEGER,`shoplistdategot` INTEGER,`shoplistcost` REAL)
+	2019-08-30 12:10:02.843 32047-32047/exacnv.exampleconvertedshopwisedb D/TABLESQL: CREATE TABLE `rules`(`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,`ruleproductref` INTEGER,`ruleaisleref` INTEGER,`rulename` TEXT,`ruleuses` INTEGER,`ruleprompt` INTEGER,`ruleacton` INTEGER,`ruleperiod` INTEGER,`rulemultiplier` INTEGER)
+	2019-08-30 12:10:02.843 32047-32047/exacnv.exampleconvertedshopwisedb D/TABLESQL: CREATE TABLE `appvalues`(`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,`appvaluename` TEXT,`appvaluetype` TEXT,`appvalueint` INTEGER,`appvaluereal` REAL,`appvaluetext` TEXT,`appvalueincludeinsettings` INTEGER,`appvaluesettingsinfo` TEXT)
+	2019-08-30 12:10:02.843 32047-32047/exacnv.exampleconvertedshopwisedb D/TABLESQL: CREATE TABLE `storage`(`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,`storageorder` INTEGER,`storagename` TEXT)
+
+and :-
+
+	2019-08-30 12:10:02.859 32047-32047/exacnv.exampleconvertedshopwisedb I/ertedshopwised:     at void com.android.internal.os.ZygoteInit.main(java.lang.String[]) (ZygoteInit.java:858)
+	2019-08-30 12:10:02.948 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Dumping a maximum of 5 objects from 91.
+	2019-08-30 12:10:02.948 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Aisles String represntation isexacnv.exampleconvertedshopwisedb.Aisles@32ad3a8
+	2019-08-30 12:10:02.948 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Aisles String represntation isexacnv.exampleconvertedshopwisedb.Aisles@1a97ec1
+	2019-08-30 12:10:02.948 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Aisles String represntation isexacnv.exampleconvertedshopwisedb.Aisles@40ff666
+	2019-08-30 12:10:02.948 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Aisles String represntation isexacnv.exampleconvertedshopwisedb.Aisles@c32da7
+	2019-08-30 12:10:02.948 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Aisles String represntation isexacnv.exampleconvertedshopwisedb.Aisles@12d8254
+	2019-08-30 12:10:02.961 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Dumping a maximum of 5 objects from 107.
+	2019-08-30 12:10:02.961 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Appvalues String represntation isexacnv.exampleconvertedshopwisedb.Appvalues@f0e45fd
+	2019-08-30 12:10:02.961 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Appvalues String represntation isexacnv.exampleconvertedshopwisedb.Appvalues@11512f2
+	2019-08-30 12:10:02.961 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Appvalues String represntation isexacnv.exampleconvertedshopwisedb.Appvalues@aeafd43
+	2019-08-30 12:10:02.961 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Appvalues String represntation isexacnv.exampleconvertedshopwisedb.Appvalues@40a6fc0
+	2019-08-30 12:10:02.962 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Appvalues String represntation isexacnv.exampleconvertedshopwisedb.Appvalues@4fe44f9
+	2019-08-30 12:10:02.968 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Dumping a maximum of 5 objects from 151.
+	2019-08-30 12:10:02.968 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Products String represntation isexacnv.exampleconvertedshopwisedb.Products@add6c3e
+	2019-08-30 12:10:02.968 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Products String represntation isexacnv.exampleconvertedshopwisedb.Products@d362a9f
+	2019-08-30 12:10:02.968 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Products String represntation isexacnv.exampleconvertedshopwisedb.Products@706c7ec
+	2019-08-30 12:10:02.968 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Products String represntation isexacnv.exampleconvertedshopwisedb.Products@b5537b5
+	2019-08-30 12:10:02.968 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Products String represntation isexacnv.exampleconvertedshopwisedb.Products@5400e4a
+	2019-08-30 12:10:02.980 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Dumping a maximum of 5 objects from 152.
+	2019-08-30 12:10:02.980 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Productusage String represntation isexacnv.exampleconvertedshopwisedb.Productusage@7dcd1bb
+	2019-08-30 12:10:02.980 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Productusage String represntation isexacnv.exampleconvertedshopwisedb.Productusage@28e76d8
+	2019-08-30 12:10:02.980 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Productusage String represntation isexacnv.exampleconvertedshopwisedb.Productusage@1ee9a31
+	2019-08-30 12:10:02.980 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Productusage String represntation isexacnv.exampleconvertedshopwisedb.Productusage@878c516
+	2019-08-30 12:10:02.980 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Productusage String represntation isexacnv.exampleconvertedshopwisedb.Productusage@c7cce97
+	2019-08-30 12:10:02.984 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Dumping a maximum of 5 objects from 5.
+	2019-08-30 12:10:02.984 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Rules String represntation isexacnv.exampleconvertedshopwisedb.Rules@7e02884
+	2019-08-30 12:10:02.984 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Rules String represntation isexacnv.exampleconvertedshopwisedb.Rules@e1a86d
+	2019-08-30 12:10:02.984 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Rules String represntation isexacnv.exampleconvertedshopwisedb.Rules@2b41ca2
+	2019-08-30 12:10:02.984 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Rules String represntation isexacnv.exampleconvertedshopwisedb.Rules@eb5bd33
+	2019-08-30 12:10:02.984 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Rules String represntation isexacnv.exampleconvertedshopwisedb.Rules@b7948f0
+	2019-08-30 12:10:02.988 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Dumping a maximum of 5 objects from 4.
+	2019-08-30 12:10:02.988 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Shoplist String represntation isexacnv.exampleconvertedshopwisedb.Shoplist@7d5e69
+	2019-08-30 12:10:02.988 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Shoplist String represntation isexacnv.exampleconvertedshopwisedb.Shoplist@65b60ee
+	2019-08-30 12:10:02.988 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Shoplist String represntation isexacnv.exampleconvertedshopwisedb.Shoplist@284f98f
+	2019-08-30 12:10:02.989 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Shoplist String represntation isexacnv.exampleconvertedshopwisedb.Shoplist@a42041c
+	2019-08-30 12:10:02.992 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Dumping a maximum of 5 objects from 7.
+	2019-08-30 12:10:02.993 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Shops String represntation isexacnv.exampleconvertedshopwisedb.Shops@5047825
+	2019-08-30 12:10:02.993 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Shops String represntation isexacnv.exampleconvertedshopwisedb.Shops@1209dfa
+	2019-08-30 12:10:02.993 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Shops String represntation isexacnv.exampleconvertedshopwisedb.Shops@4619fab
+	2019-08-30 12:10:02.993 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Shops String represntation isexacnv.exampleconvertedshopwisedb.Shops@5794608
+	2019-08-30 12:10:02.993 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Shops String represntation isexacnv.exampleconvertedshopwisedb.Shops@a2971a1
+	2019-08-30 12:10:02.995 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Dumping a maximum of 5 objects from 31.
+	2019-08-30 12:10:02.995 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Storage String represntation isexacnv.exampleconvertedshopwisedb.Storage@7ca9fc6
+	2019-08-30 12:10:02.995 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Storage String represntation isexacnv.exampleconvertedshopwisedb.Storage@7188b87
+	2019-08-30 12:10:02.995 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Storage String represntation isexacnv.exampleconvertedshopwisedb.Storage@160bab4
+	2019-08-30 12:10:02.995 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Storage String represntation isexacnv.exampleconvertedshopwisedb.Storage@a4a86dd
+	2019-08-30 12:10:02.995 32047-32047/exacnv.exampleconvertedshopwisedb D/OBJECTDUMP: Object as from class exacnv.exampleconvertedshopwisedb.Storage String represntation isexacnv.exampleconvertedshopwisedb.Storage@2c0f252
+
+
+For the King James Bible the output (fome similar code) was :-
+
+	2019-08-30 12:16:01.259 32408-32408/exacnv.examplekjbible D/TABLESQL: CREATE TABLE android_metadata (locale TEXT)
+	2019-08-30 12:16:01.259 32408-32408/exacnv.examplekjbible D/TABLESQL: CREATE TABLE `bible`(`book` TEXT NOT NULL,`chapter` INTEGER NOT NULL,`verse` INTEGER NOT NULL,`content` TEXT,PRIMARY KEY(`book`,`chapter`,`verse`))
+	2019-08-30 12:16:01.259 32408-32408/exacnv.examplekjbible D/TABLESQL: CREATE TABLE `metadata`(`k` TEXT NOT NULL,`v` TEXT NOT NULL,PRIMARY KEY(`k`,`v`))
+	2019-08-30 12:16:01.259 32408-32408/exacnv.examplekjbible D/TABLESQL: CREATE VIRTUAL TABLE bible_fts USING FTS3(book, chapter INTEGER, verse INTEGER, content TEXT)
+	2019-08-30 12:16:01.259 32408-32408/exacnv.examplekjbible D/TABLESQL: CREATE TABLE 'bible_fts_content'(docid INTEGER PRIMARY KEY, 'c0book', 'c1chapter', 'c2verse', 'c3content')
+	2019-08-30 12:16:01.259 32408-32408/exacnv.examplekjbible D/TABLESQL: CREATE TABLE 'bible_fts_segments'(blockid INTEGER PRIMARY KEY, block BLOB)
+	2019-08-30 12:16:01.259 32408-32408/exacnv.examplekjbible D/TABLESQL: CREATE TABLE 'bible_fts_segdir'(level INTEGER,idx INTEGER,start_block INTEGER,leaves_end_block INTEGER,end_block INTEGER,root BLOB,PRIMARY KEY(level, idx))
+
+ - Note that only the three tables bible, metadata and the VIRTUAL table bible_fts are created directly by the conversion. bible_fts_?? tables are generated by the FTS3 module.
+
+
+and
+	
+	2019-08-30 12:16:01.627 32408-32408/exacnv.examplekjbible D/OBJECTDUMP: Dumping a maximum of 5 objects from 31036.
+	2019-08-30 12:16:01.627 32408-32408/exacnv.examplekjbible D/OBJECTDUMP: Object as from class exacnv.examplekjbible.Bible String represntation isexacnv.examplekjbible.Bible@32ad3a8
+	2019-08-30 12:16:01.627 32408-32408/exacnv.examplekjbible D/OBJECTDUMP: Object as from class exacnv.examplekjbible.Bible String represntation isexacnv.examplekjbible.Bible@1a97ec1
+	2019-08-30 12:16:01.627 32408-32408/exacnv.examplekjbible D/OBJECTDUMP: Object as from class exacnv.examplekjbible.Bible String represntation isexacnv.examplekjbible.Bible@40ff666
+	2019-08-30 12:16:01.628 32408-32408/exacnv.examplekjbible D/OBJECTDUMP: Object as from class exacnv.examplekjbible.Bible String represntation isexacnv.examplekjbible.Bible@c32da7
+	2019-08-30 12:16:01.628 32408-32408/exacnv.examplekjbible D/OBJECTDUMP: Object as from class exacnv.examplekjbible.Bible String represntation isexacnv.examplekjbible.Bible@12d8254
+	2019-08-30 12:16:01.653 32408-32408/exacnv.examplekjbible W/CursorWindow: Window is full: requested allocation 242 bytes, free space 129 bytes, window size 2097152 bytes
+	2019-08-30 12:16:01.765 32408-32408/exacnv.examplekjbible W/CursorWindow: Window is full: requested allocation 48 bytes, free space 26 bytes, window size 2097152 bytes
+	2019-08-30 12:16:01.845 32408-32408/exacnv.examplekjbible W/CursorWindow: Window is full: requested allocation 48 bytes, free space 2 bytes, window size 2097152 bytes
+	2019-08-30 12:16:01.959 32408-32408/exacnv.examplekjbible D/OBJECTDUMP: Dumping a maximum of 5 objects from 31036.
+	2019-08-30 12:16:01.959 32408-32408/exacnv.examplekjbible D/OBJECTDUMP: Object as from class exacnv.examplekjbible.Bible_fts String represntation isexacnv.examplekjbible.Bible_fts@f0e45fd
+	2019-08-30 12:16:01.959 32408-32408/exacnv.examplekjbible D/OBJECTDUMP: Object as from class exacnv.examplekjbible.Bible_fts String represntation isexacnv.examplekjbible.Bible_fts@11512f2
+	2019-08-30 12:16:01.959 32408-32408/exacnv.examplekjbible D/OBJECTDUMP: Object as from class exacnv.examplekjbible.Bible_fts String represntation isexacnv.examplekjbible.Bible_fts@aeafd43
+	2019-08-30 12:16:01.959 32408-32408/exacnv.examplekjbible D/OBJECTDUMP: Object as from class exacnv.examplekjbible.Bible_fts String represntation isexacnv.examplekjbible.Bible_fts@40a6fc0
+	2019-08-30 12:16:01.959 32408-32408/exacnv.examplekjbible D/OBJECTDUMP: Object as from class exacnv.examplekjbible.Bible_fts String represntation isexacnv.examplekjbible.Bible_fts@4fe44f9
+	2019-08-30 12:16:01.963 32408-32408/exacnv.examplekjbible D/OBJECTDUMP: Dumping a maximum of 5 objects from 3.
+	2019-08-30 12:16:01.963 32408-32408/exacnv.examplekjbible D/OBJECTDUMP: Object as from class exacnv.examplekjbible.Metadata String represntation isexacnv.examplekjbible.Metadata@add6c3e
+	2019-08-30 12:16:01.963 32408-32408/exacnv.examplekjbible D/OBJECTDUMP: Object as from class exacnv.examplekjbible.Metadata String represntation isexacnv.examplekjbible.Metadata@d362a9f
+	2019-08-30 12:16:01.963 32408-32408/exacnv.examplekjbible D/OBJECTDUMP: Object as from class exacnv.examplekjbible.Metadata String represntation isexacnv.examplekjbible.Metadata@706c7ec
+
+- The CursorWindow full messages just indicating the the CursorWindow couldn't hold the row that was being added as it was larger than the estimated row size and it would have been added to the next population of the CursorWindow.
+
+The Chinook Database is similar other than that the 1 row as previously mentioned cannot be copied.
+
+
+
+
+
+
+
+
+
+
+
+
+
