@@ -26,6 +26,7 @@
             android:layout_weight="4"
             android:layout_height="wrap_content"
             android:hint="@string/entitycolumnnamehdr"
+            android:inputType="text"
             />
     </LinearLayout>
     <LinearLayout
@@ -49,6 +50,7 @@
             android:layout_weight="4"
             android:layout_height="wrap_content"
             android:hint="@string/entityaltcolumnnamehdr"
+            android:inputType="text"
             />
     </LinearLayout>
     <LinearLayout

@@ -3,6 +3,7 @@ package mjt.resdbc;
 public class GenerateColumnSQL {
 
     public static String generateColumnSQL(TableInfo ti, String encloserStart, String encloserEnd) {
+        boolean notnullUsed = false;
         StringBuilder columnSQL = new StringBuilder();
         for (ColumnInfo ci: ti.getColumns()) {
             if (columnSQL.length() > 0) {
@@ -19,6 +20,10 @@ public class GenerateColumnSQL {
                     && !(ci.isAutoIncrementCoded() || ci.isRowidAlias())
             ) {
                 columnSQL. append(" ").append(SQLiteConstants.KEYWORD_NOTNULL);
+                notnullUsed = true;
+            }
+            if (ti.getPrimaryKeyList().size() < 1 && !notnullUsed) {
+                columnSQL.append(" ").append(SQLiteConstants.KEYWORD_NOTNULL);
             }
             if(ci.isUnique()) {
                 columnSQL.append(" ").append(SQLiteConstants.KEYWORD_UNIQUE);

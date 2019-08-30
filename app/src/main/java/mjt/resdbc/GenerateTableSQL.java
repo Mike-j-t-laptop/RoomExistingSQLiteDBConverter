@@ -25,7 +25,7 @@ public class GenerateTableSQL {
         return tableSQL.toString();
     }
 
-    public static final String generateVirtualTableSQL (TableInfo ti, String encloserStart, String encloserEnd) {
+    public static String generateVirtualTableSQL (TableInfo ti, String encloserStart, String encloserEnd) {
         StringBuilder virtTableSQL = new StringBuilder();
         virtTableSQL.append(SQLiteConstants.CLAUSE_CREATEVIRTTBL).append(" ").append(SQLiteConstants.CLAUSE_IFNOTEXISTS).append(" ");
         virtTableSQL.append(ti.getTableName());

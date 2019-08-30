@@ -245,7 +245,6 @@ public class ConvertPreExistingDatabaseToRoom {
                 rv = false;
             }
 
-            //String tableNameToCode = "main." + "`" + swapEnclosersForRoom(ti.getEnclosedTableName()) + "`";
             long originalRowCount = DatabaseUtils.queryNumEntries(db,INSPECTDBATTACHNAME + "." + ti.getTableName());
             totalOriginalRows = totalOriginalRows + originalRowCount;
             Cursor csr1 = db.query(INSPECTDBATTACHNAME + "." + encloserStart + ti.getTableName() + encloserEnd,new String[]{"count()"},null,null,null,null,null);
@@ -282,7 +281,6 @@ public class ConvertPreExistingDatabaseToRoom {
         }
         for (TableInfo ti: peadbi.getTableInfo()) {
             if (ti.isVirtualTable() && ti.isVirtualTableSupported()) {
-                //String tableCreateSQL = ConvertedDatabaseCreateVirtualTableSQL.createVirtualTableCreateSQL(peadbi,ti);
                 String tableCreateSQL = GenerateTableSQL.generateVirtualTableSQL(ti,encloserStart,encloserEnd);
                 Log.d(TAG,"Creating Virtual Table " + ti.getTableName() + " using SQL as \n\t" + tableCreateSQL);
                 try {

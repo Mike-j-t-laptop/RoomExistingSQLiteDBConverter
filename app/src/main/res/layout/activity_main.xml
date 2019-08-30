@@ -237,63 +237,72 @@
             android:layout_weight="2"
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
-            android:textColor="@color/colorTextDark"/>
+            android:textColor="@color/colorTextDark"
+            android:paddingStart="5dp" />
         <TextView
             android:id="@+id/dbversion"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
-            android:textColor="@color/colorTextMedium"/>
+            android:textColor="@color/colorTextMedium"
+            android:paddingStart="5dp" />
         <TextView
             android:id="@+id/dbdisksize"
             android:layout_width="0dp"
             android:layout_weight="2"
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
-            android:textColor="@color/colorTextMedium"/>
+            android:textColor="@color/colorTextMedium"
+            android:paddingStart="5dp" />
         <TextView
             android:id="@+id/dbtablecount"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
-            android:textColor="@color/colorTextMedium"/>
+            android:textColor="@color/colorTextMedium"
+            android:paddingStart="5dp" />
         <TextView
             android:id="@+id/dbcolumncount"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
-            android:textColor="@color/colorTextMedium"/>
+            android:textColor="@color/colorTextMedium"
+            android:paddingStart="5dp" />
         <TextView
             android:id="@+id/dbindexcount"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
-            android:textColor="@color/colorTextMedium"/>
+            android:textColor="@color/colorTextMedium"
+            android:paddingStart="5dp" />
         <TextView
             android:id="@+id/dbforeignkeycount"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
-            android:textColor="@color/colorTextMedium"/>
+            android:textColor="@color/colorTextMedium"
+            android:paddingStart="5dp" />
         <TextView
             android:id="@+id/dbtriggercount"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
-            android:textColor="@color/colorTextMedium"/>
+            android:textColor="@color/colorTextMedium"
+            android:paddingStart="5dp" />
         <TextView
             android:id="@+id/dbviewcount"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
-            android:textColor="@color/colorTextMedium"/>/>
+            android:textColor="@color/colorTextMedium"
+            android:paddingStart="5dp" />
     </LinearLayout>
     <LinearLayout
         android:id="@+id/pathinfosection"

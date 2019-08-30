@@ -33,10 +33,11 @@
     <string name="entitywarningroommastertable">Indicates a room master table, this will be omitted from the converted database.</string>
     <string name="entitytablevirtualtable">Indicates a virtual table, this will be omitted from the converted database.</string>
     <string name="entitywarningautoincrementadd">AUTOINCREMENT will be added.</string>
-    <string name="entitywarningnumerictype">NUMERIC type detected. Using TEXT and therefore object meber will be String </string>
+    <string name="entitywarningnumerictype">NUMERIC type detected. Using TEXT and therefore object member will be String.</string>
     <string name="entitywarningdefaultvalue">A default value has been detected. You may wish to set the object member to default to the value.</string>
     <string name="entitywarningnoprimarykey">Room requires all entities (tables) to have a primary key. Will generate primary key from all columns.</string>
     <string name="entitywarningderivedtype">The specified type affinity is not usable in Room, the derived type will be used (if not NUMERIC).</string>
+    <string name="entitywarningftstable">Indicates a FTS table, this will be generated, there will be no @Entity or @Dao files created for this table.</string>
 
     <string name="entitySQL">SQL</string>
     <string name="entitytablenamehdr">Table Name</string>

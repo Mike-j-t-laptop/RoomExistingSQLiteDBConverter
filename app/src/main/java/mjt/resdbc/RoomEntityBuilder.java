@@ -85,7 +85,7 @@ public class RoomEntityBuilder {
         String primaryKeysCode = buildPrimaryKeysIfAny(ti,encloserStart,encloserEnd);
         String indiciesCode = buildIndexes(peadbi, ti,encloserStart,encloserEnd);
         String foreignKeysCode = buildForeignKeys(ti,peadbi,encloserStart,encloserEnd);
-        boolean primaryKeysDone = (primaryKeysCode.length() > 0);
+        boolean primaryKeysDone = (primaryKeysCode.length() > INDENT.length());
         String entityClassName = capitalise(ti.getTableName());
 
         entityCode.add(ENTITYSTART + encloserStart + ti.getTableName() + encloserEnd  + "\""
@@ -100,16 +100,25 @@ public class RoomEntityBuilder {
 
         entityCode.add(CLASSSTART + entityClassName + "{");
         ArrayList<String> gettersAndSettersCode = new ArrayList<>();
+        // Handle FTS table
         if (ti.isVirtualTable() && ti.isVirtualTableSupported() && ti.getVirtualTableModule().startsWith("FTS")) {
             entityCode.add(INDENT + "@PrimaryKey");
-            entityCode.add(INDENT + "@ColumnInfo(name = \"rowid\"");
-            entityCode.add(INDENT + "private final Long rowid;");
+            entityCode.add(INDENT + "@ColumnInfo(name = \"rowid\")");
+            entityCode.add(INDENT + "private Long rowid;");
             gettersAndSettersCode.add(
                     GETTERSTART + "Long " +
-                            GETTERNAMEPREFIX + "RowId" +
+                            GETTERNAMEPREFIX + capitalise("rowid") +
                             GETTERNAMESUFFIX +
-                            GETTERRETURNPREFIX + lowerise("RowId") +
+                            GETTERRETURNPREFIX + "rowid" +
                             GETTERRETURNSUFFIX
+            );
+            gettersAndSettersCode.add(
+                    SETTERSTART + capitalise("rowid") +
+                            SETTERPARAMETERPREFIX +
+                            "Long" + " rowid" +
+                            SETTERPARAMETERSUFFIX + "rowid" +
+                            SETTERASSIGN + "rowid" +
+                            SETTERASSIGNSUFFIX
             );
         }
 
@@ -136,6 +145,9 @@ public class RoomEntityBuilder {
             if (isColumnPartForeignKeyChild(ti,ci.getColumnName()) && !notNullCoded) {
                 entityCode.add(INDENT + ENTITYNOTNULL);
                 notNullCoded = true;
+            }
+            if (ti.getPrimaryKeyList().size() < 1 && !notNullCoded) {
+                entityCode.add(INDENT + ENTITYNOTNULL);
             }
             entityCode.add(INDENT + COLUMNINFOSTART + encloserStart + ci.getColumnName() + encloserEnd + COLUMNINFOEND);
             entityCode.add(INDENT + MEMBERSTART + ci.getObjectElementType() + " " + lowerise(ci.getColumnName()) + MEMBEREND);
@@ -169,6 +181,9 @@ public class RoomEntityBuilder {
      * @return      The ROOM Entity primaryKeys string
      */
     private static String buildPrimaryKeysIfAny(TableInfo ti, String encloserStart, String encloserEnd) {
+        if (ti.isVirtualTable()) {
+            return "";
+        }
         ArrayList<String> columnsToCode = new ArrayList<>();
         List<String> pklist = ti.getPrimaryKeyList();
         if (ti.getPrimaryKeyList().size() > 1) {
@@ -176,14 +191,14 @@ public class RoomEntityBuilder {
                 columnsToCode.add(encloserStart + pklist.get(i) + encloserEnd);
             }
         }
-        if (columnsToCode.size() > 0 && ti.getPrimaryKeyList().size() == 0) {
+        if (ti.getColumns().size() > 0 && ti.getPrimaryKeyList().size() == 0) {
             for (ColumnInfo ci: ti.getColumns()) {
                     columnsToCode.add(encloserStart + ci.getColumnName() + encloserEnd);
             }
         }
         StringBuilder pk = new StringBuilder();
         for (String s: columnsToCode) {
-            if (pk.length() < 1) {
+            if (pk.length() < 1 + INDENT.length()) {
                 pk.append(PRIMARYKEYS_START);
             }
             if (pk.length() > PRIMARYKEYS_START.length()) {
