@@ -1,5 +1,6 @@
 package mjt.resdbc;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +24,7 @@ public class EntityColumnAdapter extends ArrayAdapter {
         color_normal = context.getResources().getColor(R.color.colorEntityListBackground);
     }
 
+    @SuppressLint("SetTextI18n")
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {

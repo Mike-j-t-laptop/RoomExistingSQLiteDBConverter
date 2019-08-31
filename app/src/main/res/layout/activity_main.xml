@@ -65,14 +65,15 @@
                 android:layout_width="0dp"
                 android:layout_weight="2"
                 android:layout_height="wrap_content"
-                android:text="@string/convert_directory_label"/>
+                android:text="@string/convert_directory_label"
+                />
             <EditText
                 android:id="@+id/conversion_directory"
                 android:layout_width="0dp"
                 android:layout_weight="8"
                 android:layout_height="wrap_content"
                 android:inputType="textUri"
-                />
+                tools:ignore="LabelFor" />
         </LinearLayout>
         <LinearLayout
             android:orientation="horizontal"
@@ -88,7 +89,8 @@
                 android:layout_width="0dp"
                 android:layout_weight="8"
                 android:layout_height="wrap_content"
-                android:inputType="textUri"/>
+                android:inputType="textUri"
+                tools:ignore="LabelFor" />
         </LinearLayout>
         <LinearLayout
             android:orientation="horizontal"
@@ -120,7 +122,8 @@
                 android:layout_width="0dp"
                 android:layout_weight="8"
                 android:layout_height="wrap_content"
-                android:inputType="textUri"/>
+                android:inputType="textUri"
+                tools:ignore="LabelFor" />
         </LinearLayout>
         <LinearLayout
             android:orientation="horizontal"
@@ -136,7 +139,8 @@
                 android:layout_width="0dp"
                 android:layout_weight="8"
                 android:layout_height="wrap_content"
-                android:inputType="textUri"/>
+                android:inputType="textUri"
+                tools:ignore="LabelFor" />
         </LinearLayout>
 
         <Button
@@ -238,7 +242,8 @@
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
             android:textColor="@color/colorTextDark"
-            android:paddingStart="5dp" />
+            android:paddingStart="5dp"
+            tools:ignore="RtlSymmetry" />
         <TextView
             android:id="@+id/dbversion"
             android:layout_width="0dp"
@@ -246,7 +251,8 @@
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
             android:textColor="@color/colorTextMedium"
-            android:paddingStart="5dp" />
+            android:paddingStart="5dp"
+            tools:ignore="RtlSymmetry" />
         <TextView
             android:id="@+id/dbdisksize"
             android:layout_width="0dp"
@@ -254,7 +260,8 @@
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
             android:textColor="@color/colorTextMedium"
-            android:paddingStart="5dp" />
+            android:paddingStart="5dp"
+            tools:ignore="RtlSymmetry" />
         <TextView
             android:id="@+id/dbtablecount"
             android:layout_width="0dp"
@@ -262,7 +269,8 @@
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
             android:textColor="@color/colorTextMedium"
-            android:paddingStart="5dp" />
+            android:paddingStart="5dp"
+            tools:ignore="RtlSymmetry" />
         <TextView
             android:id="@+id/dbcolumncount"
             android:layout_width="0dp"
@@ -270,7 +278,8 @@
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
             android:textColor="@color/colorTextMedium"
-            android:paddingStart="5dp" />
+            android:paddingStart="5dp"
+            tools:ignore="RtlSymmetry" />
         <TextView
             android:id="@+id/dbindexcount"
             android:layout_width="0dp"
@@ -278,7 +287,8 @@
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
             android:textColor="@color/colorTextMedium"
-            android:paddingStart="5dp" />
+            android:paddingStart="5dp"
+            tools:ignore="RtlSymmetry" />
         <TextView
             android:id="@+id/dbforeignkeycount"
             android:layout_width="0dp"
@@ -286,7 +296,8 @@
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
             android:textColor="@color/colorTextMedium"
-            android:paddingStart="5dp" />
+            android:paddingStart="5dp"
+            tools:ignore="RtlSymmetry" />
         <TextView
             android:id="@+id/dbtriggercount"
             android:layout_width="0dp"
@@ -294,7 +305,8 @@
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
             android:textColor="@color/colorTextMedium"
-            android:paddingStart="5dp" />
+            android:paddingStart="5dp"
+            tools:ignore="RtlSymmetry" />
         <TextView
             android:id="@+id/dbviewcount"
             android:layout_width="0dp"
@@ -302,7 +314,8 @@
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
             android:textColor="@color/colorTextMedium"
-            android:paddingStart="5dp" />
+            android:paddingStart="5dp"
+            tools:ignore="RtlSymmetry" />
     </LinearLayout>
     <LinearLayout
         android:id="@+id/pathinfosection"

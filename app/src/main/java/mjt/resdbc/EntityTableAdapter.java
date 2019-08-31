@@ -53,7 +53,7 @@ public class EntityTableAdapter extends ArrayAdapter {
         if (currentTI.isVirtualTable()) {
             if (currentTI.isVirtualTableSupported()) {
                 tblname.setBackgroundColor(color_warning_low);
-                tblname.setText(currentTI.getTableName() + "\n\t" + " USING supported module " + currentTI.getVirtualTableModule());
+                tblname.setText(currentTI.getTableName() + "\n\t" + getContext().getResources().getString(R.string.entitywarningusingmodule) + currentTI.getVirtualTableModule());
             } else {
                 tblname.setBackgroundColor(color_warning_high);
                 tblname.setText(currentTI.getTableName() + "\n\t" + getContext().getResources().getString(R.string.entitytablevirtualtable));
