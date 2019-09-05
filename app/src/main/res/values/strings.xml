@@ -29,7 +29,6 @@
     <string name="dbviewcount">Views</string>
     <string name="dbforeignkeycount">FK</string>
 
-
     <string name="entitywarningroommastertable">Indicates a room master table, this will be omitted from the converted database.</string>
     <string name="entitytablevirtualtable">Indicates a virtual table, this will be omitted from the converted database.</string>
     <string name="entitywarningautoincrementadd">AUTOINCREMENT will be added.</string>
@@ -38,6 +37,7 @@
     <string name="entitywarningnoprimarykey">Room requires all entities (tables) to have a primary key. Will generate primary key from all columns.</string>
     <string name="entitywarningderivedtype">The specified type affinity is not usable in Room, the derived type will be used (if not NUMERIC).</string>
     <string name="entitywarningftstable">Indicates a FTS table, this will be generated, there will be no @Entity or @Dao files created for this table.</string>
+    <string name="entitywarningusingmodule">USING supported module </string>
 
     <string name="entitySQL">SQL</string>
     <string name="entitytablenamehdr">Table Name</string>

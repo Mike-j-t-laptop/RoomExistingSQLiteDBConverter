@@ -4,22 +4,22 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dp"
+    android:padding="@dimen/overall_padding"
     tools:context=".MainActivity">
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="@dimen/normal_margin"
         android:gravity="center"
-        android:text="@string/main_title"
+        android:text="@string/app_name"
         android:textColor="@color/colorTextMainHeading"
         android:background="@color/colorMainHeadingBackground"/>
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
+        android:paddingLeft="@dimen/overall_padding"
+        android:paddingRight="@dimen/overall_padding"
         >
         <TextView
             android:layout_width="0dp"
@@ -28,7 +28,7 @@
             android:text="@string/assetlistviewheader"
             android:background="@color/colorAssetHeadingBackground"
             android:textColor="@color/colorTextMedium"
-            android:layout_marginBottom="0dp"/>
+            android:layout_marginBottom="@dimen/no_margin"/>
         <Button
             android:id="@+id/refresh"
             android:layout_width="0dp"
@@ -41,10 +41,10 @@
         android:id="@+id/dbfileslist"
         android:layout_width="wrap_content"
         android:layout_weight="10"
-        android:layout_height="0dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_height="@dimen/no_height"
+        android:layout_marginTop="@dimen/no_margin"
+        android:layout_marginLeft="@dimen/normal_margin"
+        android:layout_marginRight="@dimen/normal_margin"
         android:background="@color/colorAssetListBackground">
     </ListView>
     <LinearLayout
@@ -52,9 +52,9 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="0dp"
+        android:layout_marginLeft="@dimen/normal_margin"
+        android:layout_marginRight="@dimen/normal_margin"
+        android:layout_marginBottom="@dimen/no_margin"
         android:visibility="gone"
         android:background="@color/colorConvertSectionBackground">
         <LinearLayout
@@ -62,46 +62,48 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="@dimen/no_width"
                 android:layout_weight="2"
                 android:layout_height="wrap_content"
-                android:text="@string/convert_directory_label"/>
+                android:text="@string/convert_directory_label"
+                />
             <EditText
                 android:id="@+id/conversion_directory"
-                android:layout_width="0dp"
+                android:layout_width="@dimen/no_width"
                 android:layout_weight="8"
                 android:layout_height="wrap_content"
                 android:inputType="textUri"
-                />
+                tools:ignore="LabelFor" />
         </LinearLayout>
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="@dimen/no_width"
                 android:layout_weight="2"
                 android:layout_height="wrap_content"
                 android:text="@string/convert_package_label"/>
             <EditText
                 android:id="@+id/projectpackage"
-                android:layout_width="0dp"
+                android:layout_width="@dimen/no_width"
                 android:layout_weight="8"
                 android:layout_height="wrap_content"
-                android:inputType="textUri"/>
+                android:inputType="textUri"
+                tools:ignore="LabelFor" />
         </LinearLayout>
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="@dimen/no_width"
                 android:layout_weight="2"
                 android:layout_height="wrap_content"
                 android:text="@string/convert_safemode_label"/>
             <CheckBox
                 android:id="@+id/safemode"
-                android:layout_width="0dp"
+                android:layout_width="@dimen/no_width"
                 android:layout_weight="8"
                 android:layout_height="wrap_content"
                 android:checked="true"/>
@@ -111,32 +113,34 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="@dimen/no_width"
                 android:layout_weight="2"
                 android:layout_height="wrap_content"
                 android:text="@string/convert_entity_directory_label"/>
             <EditText
                 android:id="@+id/conversion_entity_directory"
-                android:layout_width="0dp"
+                android:layout_width="@dimen/no_width"
                 android:layout_weight="8"
                 android:layout_height="wrap_content"
-                android:inputType="textUri"/>
+                android:inputType="textUri"
+                tools:ignore="LabelFor" />
         </LinearLayout>
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="@dimen/no_width"
                 android:layout_weight="2"
                 android:layout_height="wrap_content"
                 android:text="@string/convert_dao_subdirectory_label"/>
             <EditText
                 android:id="@+id/conversion_dao_directory"
-                android:layout_width="0dp"
+                android:layout_width="@dimen/no_width"
                 android:layout_weight="8"
                 android:layout_height="wrap_content"
-                android:inputType="textUri"/>
+                android:inputType="textUri"
+                tools:ignore="LabelFor" />
         </LinearLayout>
 
         <Button
@@ -150,9 +154,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/selectedassetdbinfoheading"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="0dp"
+        android:layout_marginLeft="@dimen/normal_margin"
+        android:layout_marginRight="@dimen/normal_margin"
+        android:layout_marginTop="@dimen/no_margin"
         android:background="@color/colorDatabaseInfoHeadingBackground"
         android:textColor="@color/colorTextMedium"
         />
@@ -161,62 +165,62 @@
         android:id="@+id/dbinfohdr"
         android:layout_width="match_parent"
         android:layout_weight="1"
-        android:layout_height="0dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_height="@dimen/no_height"
+        android:layout_marginLeft="@dimen/normal_margin"
+        android:layout_marginRight="@dimen/normal_margin"
         android:background="@color/colorDatabaseInfoBackground">
 
         <TextView
             android:id="@+id/dbnamehdr"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/no_width"
             android:layout_weight="2"
             android:layout_height="wrap_content"
             android:text="@string/dbname"/>
         <TextView
             android:id="@+id/dbversionhdr"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/no_width"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="@string/dbversion"/>
         <TextView
             android:id="@+id/dbdisksizehdr"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/no_width"
             android:layout_weight="2"
             android:layout_height="wrap_content"
             android:text="@string/dbdisksize"/>
         <TextView
             android:id="@+id/dbtablecounthdr"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/no_width"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="@string/dbtablecount"/>
         <TextView
             android:id="@+id/dbtablecolumncounthdr"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/no_width"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="@string/dbcolumncount"/>
         <TextView
             android:id="@+id/dbindexcounthdr"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/no_width"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="@string/dbindexcount"/>
         <TextView
             android:id="@+id/dbforeignkeycounthdr"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/no_width"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="@string/dbforeignkeycount"/>
         <TextView
             android:id="@+id/dbtriggercounthdr"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/no_width"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="@string/dbtriggercount"/>
         <TextView
             android:id="@+id/dbviewcounthdr"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/no_width"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="@string/dbviewcount"/>
@@ -226,102 +230,111 @@
         android:id="@+id/dbinfo"
         android:layout_width="match_parent"
         android:layout_weight="1"
-        android:layout_height="0dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_height="@dimen/no_height"
+        android:layout_marginLeft="@dimen/normal_margin"
+        android:layout_marginRight="@dimen/normal_margin"
         android:background="@color/colorDatabaseInfoBackground"
         >
         <TextView
             android:id="@+id/dbname"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/no_width"
             android:layout_weight="2"
             android:layout_height="wrap_content"
-            android:paddingLeft="5dp"
+            android:paddingLeft="@dimen/inter_view_item_padding"
             android:textColor="@color/colorTextDark"
-            android:paddingStart="5dp" />
+            android:paddingStart="@dimen/inter_view_item_padding"
+            tools:ignore="RtlSymmetry" />
         <TextView
             android:id="@+id/dbversion"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/no_width"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:paddingLeft="5dp"
+            android:paddingLeft="@dimen/inter_view_item_padding"
             android:textColor="@color/colorTextMedium"
-            android:paddingStart="5dp" />
+            android:paddingStart="@dimen/inter_view_item_padding"
+            tools:ignore="RtlSymmetry" />
         <TextView
             android:id="@+id/dbdisksize"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/no_width"
             android:layout_weight="2"
             android:layout_height="wrap_content"
-            android:paddingLeft="5dp"
+            android:paddingLeft="@dimen/inter_view_item_padding"
             android:textColor="@color/colorTextMedium"
-            android:paddingStart="5dp" />
+            android:paddingStart="@dimen/inter_view_item_padding"
+            tools:ignore="RtlSymmetry" />
         <TextView
             android:id="@+id/dbtablecount"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/no_width"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:paddingLeft="5dp"
+            android:paddingLeft="@dimen/inter_view_item_padding"
             android:textColor="@color/colorTextMedium"
-            android:paddingStart="5dp" />
+            android:paddingStart="@dimen/inter_view_item_padding"
+            tools:ignore="RtlSymmetry" />
         <TextView
             android:id="@+id/dbcolumncount"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/no_width"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:paddingLeft="5dp"
+            android:paddingLeft="@dimen/inter_view_item_padding"
             android:textColor="@color/colorTextMedium"
-            android:paddingStart="5dp" />
+            android:paddingStart="@dimen/inter_view_item_padding"
+            tools:ignore="RtlSymmetry" />
         <TextView
             android:id="@+id/dbindexcount"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/no_width"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:paddingLeft="5dp"
+            android:paddingLeft="@dimen/inter_view_item_padding"
             android:textColor="@color/colorTextMedium"
-            android:paddingStart="5dp" />
+            android:paddingStart="@dimen/inter_view_item_padding"
+            tools:ignore="RtlSymmetry" />
         <TextView
             android:id="@+id/dbforeignkeycount"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/no_width"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:paddingLeft="5dp"
+            android:paddingLeft="@dimen/inter_view_item_padding"
             android:textColor="@color/colorTextMedium"
-            android:paddingStart="5dp" />
+            android:paddingStart="@dimen/inter_view_item_padding"
+            tools:ignore="RtlSymmetry" />
         <TextView
             android:id="@+id/dbtriggercount"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/no_width"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:paddingLeft="5dp"
+            android:paddingLeft="@dimen/inter_view_item_padding"
             android:textColor="@color/colorTextMedium"
-            android:paddingStart="5dp" />
+            android:paddingStart="@dimen/inter_view_item_padding"
+            tools:ignore="RtlSymmetry" />
         <TextView
             android:id="@+id/dbviewcount"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/no_width"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:paddingLeft="5dp"
+            android:paddingLeft="@dimen/inter_view_item_padding"
             android:textColor="@color/colorTextMedium"
-            android:paddingStart="5dp" />
+            android:paddingStart="@dimen/inter_view_item_padding"
+            tools:ignore="RtlSymmetry" />
     </LinearLayout>
     <LinearLayout
         android:id="@+id/pathinfosection"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_weight="1"
-        android:layout_height="0dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_height="@dimen/no_height"
+        android:layout_marginLeft="@dimen/normal_margin"
+        android:layout_marginRight="@dimen/normal_margin"
         android:background="@color/colorDatabaseInfoBackground">
         <TextView
             android:id="@+id/dbpathhdr"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/no_width"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="@string/dbpath"/>
         <TextView
             android:id="@+id/dbpath"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/no_width"
             android:layout_weight="9"
             android:layout_height="wrap_content"
             android:textColor="@color/colorTextMedium"/>
@@ -330,17 +343,17 @@
         android:id="@+id/dbentitieslisthdr"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginLeft="@dimen/normal_margin"
+        android:layout_marginRight="@dimen/normal_margin"
         android:textColor="@color/colorTextMedium"
         android:background="@color/colorEntityListHeadingBackground"/>
     <ListView
         android:id="@+id/dbentitieslist"
         android:layout_width="match_parent"
         android:layout_weight="20"
-        android:layout_height="0dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_height="@dimen/no_height"
+        android:layout_marginLeft="@dimen/normal_margin"
+        android:layout_marginRight="@dimen/normal_margin"
         android:background="@color/colorEntityListBackground">
     </ListView>
 </LinearLayout>

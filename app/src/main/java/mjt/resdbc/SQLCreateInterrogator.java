@@ -6,7 +6,7 @@ public class SQLCreateInterrogator {
 
     public static final String COMMA_INSIDE = ",(?=[^()]*\\))";
     public static final String COMMA_INSIDE_REPLACE = ":COMMA";
-    public static final String DOUBLESPACES = " " + " ";
+    public static final String DOUBLESPACES = " " + "{2}";
     // Entity enclosers
     private static final String[] ENTITY_ENCLOSER_OPENERS = new String[]{
             "[",

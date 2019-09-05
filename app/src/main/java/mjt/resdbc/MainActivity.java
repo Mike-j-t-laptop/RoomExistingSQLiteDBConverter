@@ -117,10 +117,13 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
         mSafeMode = this.findViewById(R.id.safemode);
 
         ExternalStoragePermissions.verifyStoragePermissions(this);
+
+        //Handle refreshing the list of databases
         mRefreshFileList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 manageDBFilesListView();
+                mConversionPackageNameEditText.setText("");
             }
         });
         manageDBFilesListView();
@@ -164,18 +167,21 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
+                        //Handle safemode
                         String encloserStart = "`", encloserEnd = encloserStart;
-                        String packageName = "";
+                        if (!mSafeMode.isChecked()) {
+                            encloserStart = "";
+                            encloserEnd = encloserStart;
+                        }
+                        // Handle package name
+                        String packageName = ""; // assume not suplied
                         if (mConversionPackageNameEditText.getText() != null && mConversionPackageNameEditText.getText().toString().length() > 0) {
                             packageName = mConversionPackageNameEditText.getText().toString();
                             if (!packageName.endsWith(";")) {
                                 packageName = packageName + ";";
                             }
                         }
-                        if (!mSafeMode.isChecked()) {
-                            encloserStart = "";
-                            encloserEnd = encloserStart;
-                        }
+                        // Do the conversion
                         showConversionResults(
                                 (
                                         ConvertPreExistingDatabaseToRoom.Convert(
@@ -388,9 +394,9 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
                 }
                 //TODO Not Really supported as yet, needs work to properly rename SQlite entities that use a renamed column
                 if (x instanceof ColumnInfo) {
-                    Intent intent = new Intent(view.getContext(),ColumnInfoActivity.class);
-                    intent.putExtra(INTENTKEY_COLUMNINFO,(ColumnInfo)x);
-                    startActivityForResult(intent,REQUESTCODE_COLUMNINFO);
+                    //Intent intent = new Intent(view.getContext(),ColumnInfoActivity.class);
+                    //intent.putExtra(INTENTKEY_COLUMNINFO,(ColumnInfo)x);
+                    //startActivityForResult(intent,REQUESTCODE_COLUMNINFO);
                 }
                 return true ;
             }
@@ -433,6 +439,7 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
      * @param f     the selected file
      */
     public void handleSelectedFile(File f) {
+        mConversionPackageNameEditText.setText("");
         if (mPEFDBIList == null) {
             mPEFDBIList = new ArrayList<>();
         }
