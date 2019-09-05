@@ -13,13 +13,12 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 
 public class EntityTriggerAdapter extends ArrayAdapter {
-    private static int color_warning_low, color_warning_high, color_normal;
 
     public EntityTriggerAdapter(@NonNull Context context, ArrayList<TriggerInfo> tri) {
         super(context, 0,tri);
-        color_normal = context.getResources().getColor(R.color.colorEntityListBackground);
-        color_warning_low = context.getResources().getColor(R.color.colorTextWarningLow);
-        color_warning_high = context.getResources().getColor(R.color.colorTextWariningHigh);
+        int color_normal = context.getResources().getColor(R.color.colorEntityListBackground);
+        int color_warning_low = context.getResources().getColor(R.color.colorTextWarningLow);
+        int color_warning_high = context.getResources().getColor(R.color.colorTextWariningHigh);
     }
 
     @NonNull

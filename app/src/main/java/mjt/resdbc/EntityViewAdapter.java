@@ -14,13 +14,11 @@ import java.util.ArrayList;
 
 public class EntityViewAdapter extends ArrayAdapter {
 
-    private static int color_warning_low, color_warning_high, color_normal;
-
     public EntityViewAdapter(@NonNull Context context, ArrayList<ViewInfo> vi) {
         super(context, 0,vi);
-        color_normal = context.getResources().getColor(R.color.colorEntityListBackground);
-        color_warning_low = context.getResources().getColor(R.color.colorTextWarningLow);
-        color_warning_high = context.getResources().getColor(R.color.colorTextWariningHigh);
+        int color_normal = context.getResources().getColor(R.color.colorEntityListBackground);
+        int color_warning_low = context.getResources().getColor(R.color.colorTextWarningLow);
+        int color_warning_high = context.getResources().getColor(R.color.colorTextWariningHigh);
     }
 
     @NonNull

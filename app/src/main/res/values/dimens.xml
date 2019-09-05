@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="zerodp">0dp</dimen>
+    <dimen name="no_margin">@dimen/zerodp</dimen>
+    <dimen name="normal_margin">10dp</dimen>
+    <dimen name="no_height">@dimen/zerodp</dimen>
+    <dimen name="no_width">@dimen/zerodp</dimen>
+    <dimen name="no_padding">@dimen/no_margin</dimen>
+    <dimen name="overall_padding">10dp</dimen>
+    <dimen name="inter_view_item_padding">5dp</dimen>
+</resources>

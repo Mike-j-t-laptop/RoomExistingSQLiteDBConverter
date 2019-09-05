@@ -34,7 +34,6 @@ import static mjt.resdbc.SQLiteConstants.SQLITETABLEINFO_TABLENAME;
 
 public class PreExistingFileDBInspect {
 
-    private Context mContext;
     private String mDatabaseName;
     private String mDatabasePath;
     private long mDatabaseDiskSize;
@@ -50,7 +49,6 @@ public class PreExistingFileDBInspect {
 
     public PreExistingFileDBInspect(Context context, File databaseFile) {
 
-        this.mContext = context;
         this.mDatabaseName = databaseFile.getName();
         this.mDatabasePath = databaseFile.getPath();
         this.mDatabaseDiskSize = databaseFile.length();
