@@ -127,17 +127,21 @@ public class ConvertPreExistingDatabaseToRoom {
     private static boolean buildConversionDirectories() {
         ecsd = new File(Environment.getExternalStorageDirectory().getPath() + File.separator + sConversionDirectory + File.separator + sEntityCodeSubDirectory);
         daocd = new File(ecsd.getParent() + File.separator + sDAOCodeSubDirectory);
-        for (File f: ecsd.listFiles()) {
-            f.delete();
+        if (ecsd.exists()) {
+            for (File f : ecsd.listFiles()) {
+                f.delete();
+            }
+            ecsd.delete();
         }
-        ecsd.delete();
         if (!ecsd.exists()) {
             ecsd.mkdirs();
         }
-        for (File f: daocd.listFiles()) {
-            f.delete();
+        if (daocd.exists()) {
+            for (File f : daocd.listFiles()) {
+                f.delete();
+            }
+            daocd.delete();
         }
-        daocd.delete();
         if (!daocd.exists()) {
             daocd.mkdirs();
         }
