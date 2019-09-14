@@ -340,7 +340,8 @@ Screen shot from the Device Explorer Window :-
 
 1. Is the reserved conversion Directory into which all conversions are placed.
 2. Is the sub-directory for the selected Shopwise database (if one of the others were selected, as the database name differs then it would have it's own directory).
-3. Is the converted database file that is copied to the assets folder.
+3. Is the converted database file that is copied to the assets folder (can be copied from Device Explorer, so the conversion can be run on an emulator *(all testing was done using an Android Studio emulator and using Device Explorer)*, a real device could be used in which case the files could be copied via file transfer or Device Explorer if the device is available to Android Studio).
+4. In this case all files (@Entity, @Dao and @Database (note the @Database file is not shown in the above screenshot)) are highlighted by the blue closing brace. These files would a) be copied (perhaps using Device Explorer (select all, right click and Save As)) and then b) editted to resolve imports.
 
 
 In addition to writing the code the database file is copied to the App's assets folder.
@@ -448,6 +449,19 @@ and
 - The CursorWindow full messages just indicating the the CursorWindow couldn't hold the row that was being added as it was larger than the estimated row size and it would have been added to the next population of the CursorWindow.
 
 The Chinook Database is similar other than that the 1 row as previously mentioned can be copied.
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
