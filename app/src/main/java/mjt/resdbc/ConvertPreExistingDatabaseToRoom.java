@@ -36,7 +36,7 @@ public class ConvertPreExistingDatabaseToRoom {
 
     private static ArrayList<Message> sMessages;
 
-    public static int Convert(PreExistingFileDBInspect peadbi,
+    public static int Convert(PreExistingFileDBInspect pefdbi,
                               String conversionDirectory, String entityCodeSubDirectory, String daoCodeSubDirectory,
                               int logging_level,
                               String encloserStart, String encloserEnd, String packageName) {
@@ -61,47 +61,55 @@ public class ConvertPreExistingDatabaseToRoom {
             addMessage(new Message(1,MESSAGELEVEL_ERROR,"Unable to create conversion directories"));
             return resultcode;
         } else {
-            addMessage(new Message(2,MESSAGELEVEL_INFO,"Conversion Directories Built for " + peadbi.getDatabaseName()));
+            addMessage(new Message(2,MESSAGELEVEL_INFO,"Conversion Directories Built for " + pefdbi.getDatabaseName()));
         }
         resultcode--;
-        int rc = buildEntityFiles(peadbi,encloserStart,encloserEnd,packageName);
+        int rc = buildEntityFiles(pefdbi,encloserStart,encloserEnd,packageName);
         if (rc < 0) {
             addMessage(new Message(3,MESSAGELEVEL_ERROR,"Error Building Entity Files (JAVA code for ROOM Entities (Tables))"));
             return resultcode;
         } else {
-            if (rc == peadbi.getTableCount()) {
+            if (rc == pefdbi.getTableCount()) {
                 addMessage(new Message(4, MESSAGELEVEL_INFO,
-                        "Entity Code Successfully Built for " + String.valueOf(peadbi.getTableCount()) +
+                        "Entity Code Successfully Built for " + String.valueOf(pefdbi.getTableCount()) +
                                 " Java Classes in\n\t" + ecsd.getPath())
                 );
             } else {
                 addMessage( new Message(10,MESSAGELEVEL_INFO,
                         String.valueOf(rc) + " Entities built and " +
-                        String.valueOf(peadbi.getTableCount() - rc) +" Entities skipped (FTS tables)"
+                        String.valueOf(pefdbi.getTableCount() - rc) +" Entities skipped (FTS tables)"
                         )
                 );
             }
         }
         resultcode--;
-        rc = buildDaoFiles(peadbi, encloserStart,encloserEnd, packageName);
+        rc = buildDaoFiles(pefdbi, encloserStart,encloserEnd, packageName);
         if (rc < 0) {
             addMessage(new Message(5,MESSAGELEVEL_ERROR,"Error Building Dao Files (JAVA code for Data Acccess)"));
             return resultcode;
         } else {
-            if (rc == peadbi.getTableCount()) {
+            if (rc == pefdbi.getTableCount()) {
                 addMessage(new Message(6, MESSAGELEVEL_INFO,
-                        "Dao Code Successfully Built for " + String.valueOf(peadbi.getTableCount()) +
+                        "Dao Code Successfully Built for " + String.valueOf(pefdbi.getTableCount()) +
                                 " Java Classes in\n\t" + daocd.getPath())
                 );
             } else {
                 addMessage(new Message(11,MESSAGELEVEL_INFO,
                         String.valueOf(rc) + " Daos Built and " +
-                        String.valueOf(peadbi.getTableCount() - rc) + " Daos Skipped (FTS Tables)"));
+                        String.valueOf(pefdbi.getTableCount() - rc) + " Daos Skipped (FTS Tables)"));
             }
         }
         resultcode--;
-        if (!createConvertedDatabase(peadbi, encloserStart,encloserEnd)){
-            addMessage( new Message(7,MESSAGELEVEL_ERROR,"Error(s) converting the Database from " + peadbi.getDatabasePath() + " to " + cd.getPath()));
+        rc = buildDatabaseFile(pefdbi,packageName);
+        if (rc < 0) {
+            addMessage(new Message(12,MESSAGELEVEL_ERROR,"Error Build Database File (Java for the @Database class)"));
+            return resultcode;
+        } else {
+            addMessage(new Message(13,MESSAGELEVEL_INFO,"Database File Built"));
+        }
+        resultcode--;
+        if (!createConvertedDatabase(pefdbi, encloserStart,encloserEnd)){
+            addMessage( new Message(7,MESSAGELEVEL_ERROR,"Error(s) converting the Database from " + pefdbi.getDatabasePath() + " to " + cd.getPath()));
             return resultcode;
         } else {
             addMessage(new Message(8,MESSAGELEVEL_INFO,
@@ -119,9 +127,15 @@ public class ConvertPreExistingDatabaseToRoom {
     private static boolean buildConversionDirectories() {
         ecsd = new File(Environment.getExternalStorageDirectory().getPath() + File.separator + sConversionDirectory + File.separator + sEntityCodeSubDirectory);
         daocd = new File(ecsd.getParent() + File.separator + sDAOCodeSubDirectory);
+        for (File f: ecsd.listFiles()) {
+            f.delete();
+        }
         ecsd.delete();
         if (!ecsd.exists()) {
             ecsd.mkdirs();
+        }
+        for (File f: daocd.listFiles()) {
+            f.delete();
         }
         daocd.delete();
         if (!daocd.exists()) {
@@ -133,20 +147,20 @@ public class ConvertPreExistingDatabaseToRoom {
 
     /**
      * Build the Entity Files
-     * @param peadbi    The PreExistingAssetDatabaseInspect object (i.e. all the database information)
+     * @param pefdbi    The PreExistingAssetDatabaseInspect object (i.e. all the database information)
      * @return          false if an io-error, else true
      */
-    private static int buildEntityFiles(PreExistingFileDBInspect peadbi, String encloserStart, String encloserEnd, String packageName) {
+    private static int buildEntityFiles(PreExistingFileDBInspect pefdbi, String encloserStart, String encloserEnd, String packageName) {
         int rc = 0;
         ArrayList<String> code;
-        for (TableInfo ti: peadbi.getTableInfo()) {
+        for (TableInfo ti: pefdbi.getTableInfo()) {
 
             // Skip FTS tables
             if (ti.isFTSTable() && ti.getTableName().toLowerCase().contains("_fts_".toLowerCase())) {
                 continue;
             }
             File currentEntity = new File(ecsd.getPath() + File.separator + capitalise(ti.getTableName()) + ".java");
-            code = extractEntityCode(peadbi,ti, encloserStart,encloserEnd,packageName);
+            code = extractEntityCode(pefdbi,ti, encloserStart,encloserEnd,packageName);
             try {
                 FileWriter fw = new FileWriter(currentEntity);
                 for (String s: code) {
@@ -166,13 +180,13 @@ public class ConvertPreExistingDatabaseToRoom {
 
     /**
      * Build basic DAO files
-     * @param peadbi    The PreExisitingAssetDatabaseInspection object
+     * @param pefdbi    The PreExisitingAssetDatabaseInspection object
      * @return          true if the files were successfully generated, else false
      */
-    private static int buildDaoFiles(PreExistingFileDBInspect peadbi, String encloserStart, String encloserEnd, String packageName) {
+    private static int buildDaoFiles(PreExistingFileDBInspect pefdbi, String encloserStart, String encloserEnd, String packageName) {
         int rc = 0;
         ArrayList<String> code;
-        for (TableInfo ti: peadbi.getTableInfo()) {
+        for (TableInfo ti: pefdbi.getTableInfo()) {
             if (ti.isFTSTable() && ti.getTableName().toLowerCase().contains("_fts_".toLowerCase())) {
                 continue;
             }
@@ -194,13 +208,34 @@ public class ConvertPreExistingDatabaseToRoom {
         return rc;
     }
 
+    private static int buildDatabaseFile(PreExistingFileDBInspect pefdbi, String packageName)  {
+        int rc = 0;
+        ArrayList<String> code = RoomDatabaseBuilder.extractDatabaseCode(pefdbi,packageName);
+        if (code.size() > 0) {
+            File currentDatabaseCode = new File(ecsd.getPath() + File.separator + capitalise(pefdbi.getDatabaseNameLessExtension()) + "Database.java");
+            try {
+                FileWriter fw = new FileWriter(currentDatabaseCode);
+                for (String s: code) {
+                    fw.write(s);
+                }
+                fw.flush();
+                fw.close();
+                rc++;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return -1;
+            }
+        }
+        return rc;
+    }
+
     private static final String INSPECTDBATTACHNAME = "inspectdb";
 
-    private static boolean createConvertedDatabase(PreExistingFileDBInspect peadbi, String encloserStart, String encloserEnd) {
-        peadbi.closeInspectionDatabase();
+    private static boolean createConvertedDatabase(PreExistingFileDBInspect pefdbi, String encloserStart, String encloserEnd) {
+        pefdbi.closeInspectionDatabase();
         boolean rv = true;
         String TAG = "CRTCNVRTDB";
-        String dbpath = cd.getPath() + File.separator + peadbi.getDatabaseName();
+        String dbpath = cd.getPath() + File.separator + pefdbi.getDatabaseName();
         File chkdb = new File(dbpath);
         if (chkdb.exists()) {
             chkdb.delete();
@@ -209,8 +244,8 @@ public class ConvertPreExistingDatabaseToRoom {
         // Disable Foreign Key Support to allow data to be loaded in any order
         db.setForeignKeyConstraintsEnabled(false);
         // Attach the original database copied from the assets
-        db.execSQL("ATTACH DATABASE '" + peadbi.getDatabasePath() + "' AS " + INSPECTDBATTACHNAME);
-        for (TableInfo ti: peadbi.getTableInfo()) {
+        db.execSQL("ATTACH DATABASE '" + pefdbi.getDatabasePath() + "' AS " + INSPECTDBATTACHNAME);
+        for (TableInfo ti: pefdbi.getTableInfo()) {
             //Skip ROOM master table
             if (ti.getTableName().equals(SQLiteConstants.ROOM_MASTER_TABLE)) {
                 addMessage(new Message(100,MESSAGELEVEL_WARNING,"ROOM's master table was skipped. Do you really want to convert a ROOM database?"));
@@ -279,7 +314,7 @@ public class ConvertPreExistingDatabaseToRoom {
                 rv = false;
             }
         }
-        for (TableInfo ti: peadbi.getTableInfo()) {
+        for (TableInfo ti: pefdbi.getTableInfo()) {
             if (ti.isVirtualTable() && ti.isVirtualTableSupported()) {
                 String tableCreateSQL = GenerateTableSQL.generateVirtualTableSQL(ti,encloserStart,encloserEnd);
                 Log.d(TAG,"Creating Virtual Table " + ti.getTableName() + " using SQL as \n\t" + tableCreateSQL);
@@ -315,7 +350,7 @@ public class ConvertPreExistingDatabaseToRoom {
         }
 
         try {
-            for (String s: GenerateIndexSQL.generateIndexSQL(peadbi,encloserStart,encloserEnd)) {
+            for (String s: GenerateIndexSQL.generateIndexSQL(pefdbi,encloserStart,encloserEnd)) {
                 Log.d(TAG,"Creating INDEX using \n\t" + s);
                 db.execSQL(s);
             }
@@ -326,10 +361,10 @@ public class ConvertPreExistingDatabaseToRoom {
             db.close();
             return false;
         }
-        addMessage(new Message(10,MESSAGELEVEL_INFO,String.valueOf(peadbi.getIndexCount()) + " Indexes built successfully."));
+        addMessage(new Message(10,MESSAGELEVEL_INFO,String.valueOf(pefdbi.getIndexCount()) + " Indexes built successfully."));
 
         try {
-            for (String s: GenerateTriggerSQL.generateTriggerSQL(peadbi,"`","`")) {
+            for (String s: GenerateTriggerSQL.generateTriggerSQL(pefdbi,"`","`")) {
                 Log.d(TAG,"Creating TRIGGER using \n\t" + s);
                 db.execSQL(s);
             }
@@ -340,7 +375,7 @@ public class ConvertPreExistingDatabaseToRoom {
             db.close();
             return false;
         }
-        addMessage(new Message(11,MESSAGELEVEL_INFO,String.valueOf(peadbi.getTriggerCount()) + " Triggers built successfully"));
+        addMessage(new Message(11,MESSAGELEVEL_INFO,String.valueOf(pefdbi.getTriggerCount()) + " Triggers built successfully"));
         db.close();
         addMessage(new Message(99,MESSAGELEVEL_INFO,"Conversion completed."));
         return true;

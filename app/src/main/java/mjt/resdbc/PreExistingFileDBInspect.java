@@ -82,6 +82,14 @@ public class PreExistingFileDBInspect {
         return mDatabaseName;
     }
 
+    public String getDatabaseNameLessExtension() {
+        if (mDatabaseName.indexOf(".") > 0) {
+            return mDatabaseName.substring(0, mDatabaseName.indexOf("."));
+        } else {
+            return mDatabaseName;
+        }
+    }
+
     public void setDatabaseName(String databaseName) {
         this.mDatabaseName = databaseName;
     }

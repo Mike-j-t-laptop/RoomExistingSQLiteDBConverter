@@ -66,11 +66,11 @@ public class RoomEntityBuilder {
 
     /**
      * Extarct the code for the current table (Entity)
-     * @param peadbi    The entire database (needed for getting indexes associated/ON with the table)
+     * @param pefdbi    The entire database (needed for getting indexes associated/ON with the table)
      * @param ti        The TableInformation
      * @return          The generated code
      */
-    public static ArrayList<String> extractEntityCode(PreExistingFileDBInspect peadbi, TableInfo ti, String encloserStart, String encloserEnd, String packageName) {
+    public static ArrayList<String> extractEntityCode(PreExistingFileDBInspect pefdbi, TableInfo ti, String encloserStart, String encloserEnd, String packageName) {
 
         ArrayList<String> entityCode = new ArrayList<>();
 
@@ -83,8 +83,8 @@ public class RoomEntityBuilder {
         }
 
         String primaryKeysCode = buildPrimaryKeysIfAny(ti,encloserStart,encloserEnd);
-        String indiciesCode = buildIndexes(peadbi, ti,encloserStart,encloserEnd);
-        String foreignKeysCode = buildForeignKeys(ti,peadbi,encloserStart,encloserEnd);
+        String indiciesCode = buildIndexes(pefdbi, ti,encloserStart,encloserEnd);
+        String foreignKeysCode = buildForeignKeys(ti,pefdbi,encloserStart,encloserEnd);
         boolean primaryKeysDone = (primaryKeysCode.length() > INDENT.length());
         String entityClassName = capitalise(ti.getTableName());
 
