@@ -1,19 +1,20 @@
 # RoomExistingSQLiteDBConverter #
 
 ## What the App does. ##
-App to convert an Exisiting non-Room database for Room, generating the **@Entity** and **@Dao** code as well as converting the database.
+App to convert an Exisiting non-Room database for Room, generating **@Entity**, **@Dao** and **@Database** code as well as converting the database.
 
 - *Andorid's ROOM expects the SQLite Database schema to adhere to it's rules. It is the **@Entity**'s that define the expected schema.*
-- *As such comnverting the database is relatively simple in comparison to generating the correct **@Entity**'s, especially if the underlying rules are unknown; and hence why the App can be useful.* 
-- *Android's ROOM does now provide a conversion utility, but it only converts the database, the task of creating the exact **@Entity**'s, is still required.*
+- *As such converting the database is relatively simple in comparison to generating the correct **@Entity**'s, especially if the underlying rules are unknown; and hence why the App can be useful.* 
+- *Android's ROOM does now provide a conversion utility, but it only converts the database, the task of creating the **exact** **@Entity**'s, is still required.*
 
-That is the App produces 3 distinct sets of data :-
+That is the App produces 4 distinct sets of data :-
 
 1. The Converted database.
 2. The @Entity's, one per table in the underlying database.
 3. @Dao's for the most basic operations (insert/update/delete and retrieve all), again oe per table.
 
   -  ***Note**, the generated code lacks the import statements (this is intentional, as they can vary). As such every generated file should be visited to resolve the imports (and if no package has been supplied the package statement as well).*
+4. A single @Database file that includes the entities definition (i.e. includes the @Entity classes) and abstact methods for the invocation of the @Dao's.
 
 ## An Overview of how the App works ##
 
@@ -43,27 +44,28 @@ Clicking Tables, Columns, Indexes, FK, Triggers or Views, switches to display in
 The **Convert** section allows :-
 
 - Specifying the sub-directory of the **RoomDBConverterDBConversions** directory *(this cannot be changed as it needs to be specififc so that converted databases aren't located when retrieving the databases)*.
- - All data from a conversion will be placed into a sub-directory of the **RoomDBConverterDBConversions**. By default the sub-directory used will be **Convert_** suffixed with the database file name.
+  - All data from a conversion will be placed into a sub-directory of the **RoomDBConverterDBConversions**. By default the sub-directory used will be **Convert_** suffixed with the database file name.
 - A package name.
- - If supplied, this can reduce the work involved of adding the package statements to the @Entity and @Dao code for each table.
- - If not suppled then package statements will not be added to the resultant code, they will then have to be added to each file *i.e. the number of tables * 2 (1 per @Entity, 1 per @Dao)*.
- - Obviously the package name has to be correct.
- - Determining and supplying the package name is recommended, as it can be possible to inadvertently utililse the wrong classes if using ALT + ENTER to resolve imports (import statements are not included in the generated code).
+  - If supplied, this can reduce the work involved of adding the package statements to the @Entity and @Dao code for each table.
+  - If not suppled then package statements will not be added to the resultant code, they will then have to be added to each file *i.e. the number of tables * 2 (1 per @Entity, 1 per @Dao)*.
+  - Obviously the package name has to be correct.
+  - Determining and supplying the package name is recommended, as it can be possible to inadvertently utililse the wrong classes if using ALT + ENTER to resolve imports (import statements are not included in the generated code).
 
 - Specifying the mode (whether or not Database component names are enclosed)
- - **Note**, the coverter uses the name as is stored in sqlite_master and thus the name will not be enclosed. Using SafeMode encloses the component names in **`**,s (grave accents). So invalid table names are valid. Unchecking SafeMode may result in tables not being able to be created.
- - *Note, the intention is to add a third ultra-safe mode in which case component names will be pre-prefixed (e.g. with something like rc_).*
+  - **Note**, the coverter uses the name as is stored in sqlite_master and thus the name will not be enclosed. Using SafeMode encloses the component names in **`**,s (grave accents). So invalid table names are valid. Unchecking SafeMode may result in tables not being able to be created.
+  - *Note, the intention is to add a third ultra-safe mode in which case component names will be pre-prefixed (e.g. with something like rc_).*
 
 - The specification of the sub-sub-directory for the @Entity and additionaly the @Dao files.
- - By default **java** is used for both so @Entity and @Dao files are store together (this allows for a single copy say from device-explorer).
+  - By default **java** is used for both so @Entity and @Dao files are store together (this allows for a single copy say from device-explorer).
 
 - Conversion
- - Clicking the **CONVERT**- button will attempt to undertake the conversion.
- - A dialog appears with messages. 
+  - Clicking the **CONVERT**- button will attempt to undertake the conversion.
+  - A dialog appears with messages. 
 
-#Example Usage (user guide)
 
-##Initial Display##
+# Example Usage (user guide) #
+
+## Initial Display ##
 When the App is first started **(after accepting permission)** then the database files found within the External Public Storage are displayed (if any).
 - If permisssion is not granted then no files/database will be found as read access to the directory prevents any being found.
 - If there are none then the database(s) to be converted should be copied into External Public Storage (typically this is sdcard aka storage/emulated/0, however it can be device dependant *(see [https://developer.android.com/training/data-storage/files](https://developer.android.com/training/data-storage/files))*
@@ -72,7 +74,7 @@ When the App is first started **(after accepting permission)** then the database
 
 Here you can see that 7 databases have been located in various directories.
 
-##Selecting and Inspecting a Database##
+## Selecting and Inspecting a Database ##
 
 If a listed database is selected (clicked) then the database will be inspected. 
 The following is the result of clicking the last (the database file **RoomAssetConversion.db**, which is located in the RoomDBConverterDBSource folder) :-
@@ -88,11 +90,11 @@ As can be seen from the above three additional sections are added:-
  1. The component section initially shows the tables.
  2. Clicking on Tables, Columns, Indexes, FK, Triggers or Views switches to displaying respective information.
 
-###Tables View
+### Tables View ###
 
 Lists information about each table. If a table is a deviation from a usual table and has to be treated differently then the table name will be followed by relevant information.
 
-####Deviations/notifications are :-
+#### Deviations/notifications are :- ####
 
 1. **Indicates a room master table, this will be omitted from the converted database.** (RED).
  1. ROOM manages the room_master table, it may lead to issues if this table were converted/copied. It is also likely that there is no neeed to convert such a database.
@@ -104,11 +106,13 @@ Lists information about each table. If a table is a deviation from a usual table
  1. The VIRTUAL table will be converted. However, the other FTS tables, which are generated by the FTS module will be omitted as per the deviation/notification :-
 4. **Indicates a FTS table, this will be generated, there will be no @Entity or @Dao files created for this table.** (RED)
 
-###Columns View
+![KJBibleFTSNotifications](https://i.imgur.com/zenv7aE.png)
+
+### Columns View  ###
 
 Lists information about each column in the database. Notifications can appear with the respective attribute's value.
 
-####Notifications are :-
+#### Notifications are :- ####
 1. **Indicates a room master table, this will be omitted from the converted database.** (RED - with the Table attribute's value).
 1. **The specified type affinity is not usable in Room, the derived type will be used (if not NUMERIC).** (Orange -  with the Derived attribute's value).
  1. If the Type Affinity used when defining the original/source table is not one of the four supported by ROOM (TEXT, INTEGER, REAL or BLOB), then this notifications indicates that it will be changed.
@@ -118,7 +122,9 @@ Lists information about each column in the database. Notifications can appear wi
  1. For automatically generated rowid's the **@Entity** includes **`@PrimaryKey(autoGenerate = true)`** and this requires that **`AUTOINCREMENT`** is coded (as well as `NOT NULL`).
 1. **A default value has been detected. You may wish to set the object member to default to the value.** (RED - with the Default attribute's value). 
 
-###Indexes, FK, Triggers and Views
+
+
+### Indexes, FK, Triggers and Views ###
 
 These views simply provide the information.
 
@@ -127,7 +133,7 @@ These views simply provide the information.
 3. Triggers will be created using the SQL extracted from sqlite_master.
 4. Views are currently ignored.
 
-##Convert
+## Convert ##
 
 Clicking the **CONVERT** button result in a dialog displaying the results of the conversion. 
 
@@ -143,7 +149,7 @@ That is bar the WARNING the conversion was successfull.
 If there are issues then the dialog should display such issues.
 
 
-# Testing
+# Testing #
 
 Limited testing has been undertaken. Initally 3 Databases were used :-
 
@@ -407,7 +413,33 @@ and
 
 - The CursorWindow full messages just indicating the the CursorWindow couldn't hold the row that was being added as it was larger than the estimated row size and it would have been added to the next population of the CursorWindow.
 
-The Chinook Database is similar other than that the 1 row as previously mentioned cannot be copied.
+The Chinook Database is similar other than that the 1 row as previously mentioned can be copied.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
