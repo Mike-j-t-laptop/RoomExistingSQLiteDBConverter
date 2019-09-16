@@ -5,7 +5,7 @@ App to convert an Exisiting non-Room database for Room, generating **@Entity**, 
 
 - *Andorid's ROOM expects the SQLite Database schema to adhere to it's rules. It is the **@Entity**'s that define the expected schema.*
 - *As such converting the database is relatively simple in comparison to generating the correct **@Entity**'s, especially if the underlying rules are unknown; and hence why the App can be useful.* 
-- *Android's ROOM does now provide a conversion utility, but it only converts the database, the task of creating the **exact** **@Entity**'s, is still required.*
+- *Android's ROOM does now provide a conversion utility, but it only converts the database, the task of creating the **exact*** ***@Entity**'s, is still required.*
 
 That is the App produces 4 distinct sets of data :-
 
@@ -15,6 +15,13 @@ That is the App produces 4 distinct sets of data :-
 
   -  ***Note**, the generated code lacks the import statements (this is intentional, as they can vary). As such every generated file should be visited to resolve the imports (and if no package has been supplied the package statement as well).*
 4. A single @Database file that includes the entities definition (i.e. includes the @Entity classes) and abstact methods for the invocation of the @Dao's.
+
+## What the App does not do. ##
+
+1. The App only supports limited **VIRTUAL TABLE** support (just FTS3 and FTS4).
+1. **WITHOUT ROWID** tables will be converted to **ROWID** Tables (untested).
+2. Currently there is no protection against invalid class/dao file names
+ 1. e.g. if a table were named **1table** and it was enclosed, as it would have to be, e.g. **`1table`** then the resultant @Entity file would be **1table.java** and the @Dao file would be **1tableDao** (untested as to exaclty what the connotations are)
 
 ## An Overview of how the App works ##
 
@@ -448,7 +455,20 @@ and
 
 - The CursorWindow full messages just indicating the the CursorWindow couldn't hold the row that was being added as it was larger than the estimated row size and it would have been added to the next population of the CursorWindow.
 
-The Chinook Database is similar other than that the 1 row as previously mentioned can be copied.
+The Chinook Database is similar other than that the 1 row as previously mentioned cannot be copied.
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
