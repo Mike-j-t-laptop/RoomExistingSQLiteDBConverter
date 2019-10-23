@@ -16,6 +16,15 @@ That is the App produces 4 distinct sets of data :-
   -  ***Note**, the generated code lacks the import statements (this is intentional, as they can vary). As such every generated file should be visited to resolve the imports (and if no package has been supplied the package statement as well).*
 4. A single @Database file that includes the entities definition (i.e. includes the @Entity classes) and abstact methods for the invocation of the @Dao's.
 
+## Revisions ##
+
+2019-10-23 **Default Value handling**. 
+
+- Converted tables now include the default value 
+- The **@ColumnInfo** annotaions include the defaultValue= parameter. The default value being that as extracted from the original database. 
+- **Note** - this requires Room 2.2.0 libraries.
+
+
 ## What the App does not do. ##
 
 1. The App only supports limited **VIRTUAL TABLE** support (just FTS3 and FTS4).
@@ -130,8 +139,7 @@ Lists information about each column in the database. Notifications can appear wi
 1. **AUTOINCREMENT will be added.** (RED - with the Autoincrement Coded attribute's value).
  1. For automatically generated rowid's the **@Entity** includes **`@PrimaryKey(autoGenerate = true)`** and this requires that **`AUTOINCREMENT`** is coded (as well as `NOT NULL`).
 1. **A default value has been detected. You may wish to set the object member to default to the value.** (RED - with the Default attribute's value). 
-
-
+  1. Default value handling has been implemented, the convereted table will include DEFAULT ? and the @ColumnInfo annotation for the respective column/object member in the respective Entity will include defaultValue=?. Where ? represents to value as extracted from the original table.
 
 ### Indexes, FK, Triggers and Views ###
 
@@ -456,72 +464,6 @@ and
 - The CursorWindow full messages just indicating the the CursorWindow couldn't hold the row that was being added as it was larger than the estimated row size and it would have been added to the next population of the CursorWindow.
 
 The Chinook Database is similar other than that the 1 row as previously mentioned cannot be copied.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
