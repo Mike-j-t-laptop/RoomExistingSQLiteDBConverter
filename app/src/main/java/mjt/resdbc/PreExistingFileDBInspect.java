@@ -214,7 +214,8 @@ public class PreExistingFileDBInspect {
                 ci.setNotNull(extra_ci.isNotNull());
                 ci.setUnique((extra_ci.isUnique()));
                 ci.setRowidAlias(extra_ci.isRowidAlias());
-                ci.setDefaultValue(extra_ci.getDefaultValue());
+                //ci.setDefaultValue(extra_ci.getDefaultValue());
+                ci.setDefaultValue(csr.getString(csr.getColumnIndex(SQLITETABLEINFO_COL_DFLTVALUE)));
                 ci.setColumnCreateSQL(extra_ci.getColumnCreateSQL());
             }
             ti.addColumn(ci);

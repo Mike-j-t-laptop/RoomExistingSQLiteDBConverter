@@ -66,6 +66,7 @@ public class SQLiteConstants {
     public static final String KEYWORD_INDEX = "INDEX";
     public static final String KEYWORD_WHERE = "WHERE";
     public static final String KEYWORD_UNIQUE = "UNIQUE";
+    public static final String KEYWORD_DEFAULT = "DEFAULT";
     public static final String KEYWORD_DEFERRABLE = "DEFERRABLE";
     public static final String KEYWORD_INITIALLY = "INITIALLY";
     public static final String KEYWORD_DEFERRED = "DEFERRED";

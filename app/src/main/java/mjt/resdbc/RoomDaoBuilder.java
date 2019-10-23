@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import static mjt.resdbc.RoomCodeCommonUtils.INDENT;
 import static mjt.resdbc.RoomCodeCommonUtils.capitalise;
 import static mjt.resdbc.RoomCodeCommonUtils.lowerise;
-import static mjt.resdbc.RoomCodeCommonUtils.swapEnclosersForRoom;
-
 
 public class RoomDaoBuilder {
 
@@ -52,7 +50,6 @@ public class RoomDaoBuilder {
         rv.add(INDENT + DAODELETEMETHODPREFIX + capitalise(ti.getTableName()) + "(" + capitalise(ti.getTableName()) + " " + lowerise(ti.getTableName()) + ");");
         rv.add("");
         rv.add(INDENT + DAODELETEANNOTATION);
-        String tableNameToCode =  swapEnclosersForRoom(ti.getEnclosedTableName());
         rv.add(INDENT + DAODELETEMETHODPREFIX + capitalise(ti.getTableName()) + "(" + capitalise(ti.getTableName()) + DAOMANYSUFFIX + " " + lowerise(ti.getTableName()) + ");");
         rv.add("");
         rv.add(INDENT + DAOQUERYANNOTATIONSTART + encloserStart + ti.getTableName() + encloserEnd + DAOQUERYANNOTATIONEND);
