@@ -64,10 +64,13 @@ public class SQLCreateInterrogator {
                 rv.setColumnName(column_name);
                 rv.setUnique(s.contains(" UNIQUE "));
                 rv.setNotNull(s.contains(" NOT NULL"));
+                //TODO remove commented out block after testing
+                /*
                 rv.setDefaultValue("");
                 if (s.contains(" DEFAULT")) {
                     rv.setDefaultValue("supplied");
                 }
+                 */
                 s = s.replaceAll(column_name.toUpperCase(),column_name);
                 rv.setColumnCreateSQL(s);
                 break;

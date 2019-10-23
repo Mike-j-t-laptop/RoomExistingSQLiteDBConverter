@@ -28,6 +28,11 @@ public class GenerateColumnSQL {
             if(ci.isUnique()) {
                 columnSQL.append(" ").append(SQLiteConstants.KEYWORD_UNIQUE);
             }
+            if (ci.getDefaultValue() != null && ci.getDefaultValue().length() > 0 ) {
+                columnSQL.append(" ")
+                        .append(SQLiteConstants.KEYWORD_DEFAULT).append(" ")
+                        .append(ci.getDefaultValue());
+            }
         }
         return columnSQL.toString();
     }

@@ -12,9 +12,13 @@ import static mjt.resdbc.RoomCodeCommonUtils.swapEnclosersForRoom;
 
 public class RoomEntityBuilder {
     private static final String ENTITYSTART = "@Entity(tableName = \"";
+    private static final String ENTITYTABLENAMEEND = "\"";
     private static final String ENTITYEND = "\n)";
     private static final String ENTITYNOTNULL = "@NonNull";
     private static final String ENTITYNULLABLE = "@Nullable";
+    private static final String ENTITYDEFAULTVALUESTART = ", defaultValue=\"";
+    private static final String ENTITYDEFAULTVALUEEND= "\"";
+
 
     private static final String CLASSSTART = "public class ";
     private static final String CLASSEND = "\n}";
@@ -39,7 +43,7 @@ public class RoomEntityBuilder {
     private static final String AUTOGENERATE = "autoGenerate = true";
 
     private static final String COLUMNINFOSTART = "@ColumnInfo(name = \"";
-    private static final String COLUMNINFOEND = "\")";
+    private static final String COLUMNINFOEND = ")";
 
     private static final String INDICIES_START = "\n" + INDENT + "indices = {";
     private static final String INDEXSTART = "\n" + INDENT + INDENT + INDENT + "@Index(";
@@ -149,7 +153,11 @@ public class RoomEntityBuilder {
             if (ti.getPrimaryKeyList().size() < 1 && !notNullCoded) {
                 entityCode.add(INDENT + ENTITYNOTNULL);
             }
-            entityCode.add(INDENT + COLUMNINFOSTART + encloserStart + ci.getColumnName() + encloserEnd + COLUMNINFOEND);
+            String defaultValueCode = "";
+            if (ci.getDefaultValue() != null && ci.getDefaultValue().length() > 0) {
+                defaultValueCode = ENTITYDEFAULTVALUESTART + ci.getDefaultValue() + ENTITYDEFAULTVALUEEND;
+            }
+            entityCode.add(INDENT + COLUMNINFOSTART + encloserStart + ci.getColumnName() + encloserEnd + ENTITYTABLENAMEEND + defaultValueCode + COLUMNINFOEND);
             entityCode.add(INDENT + MEMBERSTART + ci.getObjectElementType() + " " + lowerise(ci.getColumnName()) + MEMBEREND);
             // Build getter code
             gettersAndSettersCode.add(

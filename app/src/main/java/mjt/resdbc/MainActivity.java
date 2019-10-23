@@ -720,8 +720,10 @@ public class MainActivity extends AppCompatActivity implements Serializable, Per
 
     @Override
     protected void onDestroy() {
-        for (PreExistingFileDBInspect p: mPEFDBIList) {
-            p.closeInspectionDatabase();
+        if (mPEFDBIList != null) {
+            for (PreExistingFileDBInspect p : mPEFDBIList) {
+                p.closeInspectionDatabase();
+            }
         }
         super.onDestroy();
     }
