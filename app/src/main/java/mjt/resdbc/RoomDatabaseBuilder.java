@@ -9,10 +9,10 @@ public class RoomDatabaseBuilder {
         ArrayList<String> databaseCode = new ArrayList<>();
         for (TableInfo ti: pefdbi.getTableInfo()) {
             if (ti.isVirtualTable() && ti.isVirtualTableSupported()) {
-                tables.add(ti.getTableName());
+                tables.add(RoomCodeCommonUtils.capitalise(ti.getTableName()));
             }
             if (!ti.isVirtualTable()) {
-                tables.add(RoomCodeCommonUtils.capitalise(ti.getTableName().toLowerCase()));
+                tables.add(RoomCodeCommonUtils.capitalise(ti.getTableName()));
             }
         }
         if (tables.size() < 1) {
