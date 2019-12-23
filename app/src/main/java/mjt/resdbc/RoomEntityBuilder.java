@@ -69,7 +69,7 @@ public class RoomEntityBuilder {
     private static final String FOREIGNKEYACTIONNOACTION = "ForeignKey.NO_ACTION";
 
     /**
-     * Extarct the code for the current table (Entity)
+     * Extract the code for the current table (Entity)
      * @param pefdbi    The entire database (needed for getting indexes associated/ON with the table)
      * @param ti        The TableInformation
      * @return          The generated code

@@ -71,6 +71,7 @@ public class RetrieveDBFiles {
                 fis.close();
                 return false;
             }
+            fis.close();
 
         } catch (IOException e) {
             return false;

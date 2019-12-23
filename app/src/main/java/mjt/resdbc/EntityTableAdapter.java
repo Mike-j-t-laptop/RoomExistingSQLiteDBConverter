@@ -59,7 +59,7 @@ public class EntityTableAdapter extends ArrayAdapter {
                 tblname.setText(currentTI.getTableName() + "\n\t" + getContext().getResources().getString(R.string.entitytablevirtualtable));
             }
         }
-        if (currentTI.getTableName().toLowerCase().contains("_fts_")) {
+        if (currentTI.getTableName().toLowerCase().contains("_fts_") || currentTI.getTableName().toLowerCase().contains("fts_")) {
             tblname.setBackgroundColor(color_warning_high);
             tblname.setText(currentTI.getTableName() + "\n\t" + getContext().getResources().getString(R.string.entitywarningftstable));
         }

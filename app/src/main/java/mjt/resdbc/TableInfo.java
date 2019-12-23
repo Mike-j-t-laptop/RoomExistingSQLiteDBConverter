@@ -20,6 +20,7 @@ public class TableInfo implements java.io.Serializable {
     private boolean mVirtualTable = false;
     private String mVirtualTableModule = "";
     private boolean mVirtualTableSupported = false;
+    private FtsInfo mFtsInfo = null;
 
     public TableInfo(String tablename,
                      String SQL,ArrayList<ColumnInfo> columnInfo,
@@ -45,6 +46,9 @@ public class TableInfo implements java.io.Serializable {
         this.mRoomTable = roomTable;
         this.mEnclosedTableName = SQLCreateInterrogator.getEnclosedTableName(this);
         setVirtualTableAttributes();
+        if (getVirtualTableModule().length() > 0) {
+            mFtsInfo = new FtsInfo(this);
+        }
     }
 
     public TableInfo(String tablename, String SQL) {
@@ -221,9 +225,15 @@ public class TableInfo implements java.io.Serializable {
         for (ColumnInfo ci: mColumnInfos) {
             if (
                     (ci.getColumnName().toUpperCase().equals("docid".toUpperCase())
-                    || ci.getColumnName().toUpperCase().equals("blockid".toUpperCase())
-                    || ci.getColumnName().toUpperCase().equals("start_block".toUpperCase()))
-                    && mTableName.toUpperCase().contains("_fts".toUpperCase())
+                            || ci.getColumnName().toUpperCase().equals("blockid".toUpperCase())
+                            || ci.getColumnName().toUpperCase().equals("start_block".toUpperCase())
+                            || ci.getColumnName().toUpperCase().equals("size".toUpperCase())
+                            || ci.getColumnName().toUpperCase().equals("value".toUpperCase())
+                    )
+
+                    &&
+                            (mTableName.toUpperCase().contains("_fts".toUpperCase()) ||
+                                    mTableName.toUpperCase().contains("fts_".toUpperCase()))
             ) {
                 return true;
             }
@@ -234,7 +244,6 @@ public class TableInfo implements java.io.Serializable {
     private boolean isWithoutRowid(String SQL) {
         return !SQL.replace(" ","").toUpperCase().equals(SQLiteConstants.SQLKEYWORD_WITHOUTROWID.replace(" ",""));
     }
-
 
 
     private void setVirtualTableAttributes() {

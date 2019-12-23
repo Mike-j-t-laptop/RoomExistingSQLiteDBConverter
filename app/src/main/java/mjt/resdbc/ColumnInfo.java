@@ -189,7 +189,7 @@ public class ColumnInfo implements java.io.Serializable {
      */
     private String guessObjectElementType(String finalType) {
         if (finalType.equals(AFFINITY_BLOB)) {
-            return  "Byte[]";
+            return  "byte[]";
         }
         if (finalType.equals(AFFINITY_REAL)) {
             return "Double";
