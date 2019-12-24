@@ -24,6 +24,12 @@ That is the App produces 4 distinct sets of data :-
 - The **@ColumnInfo** annotaions include the defaultValue= parameter. The default value being that as extracted from the original database. 
 - **Note** - this requires Room 2.2.0 libraries.
 
+2019-12-24 **Bug Fix for BLOB (byte[] replacing generation of Byte[])**
+
+- column varaiables for BLOB types were being generated as Byte[] which is not directly supported by Room. Changed to generate using byte[].
+- some other minor/rare bug fixes/corrects were also implemented.
+- Applied latest upgrades to libraries and gradle.
+
 
 ## What the App does not do. ##
 
@@ -139,7 +145,8 @@ Lists information about each column in the database. Notifications can appear wi
 1. **AUTOINCREMENT will be added.** (RED - with the Autoincrement Coded attribute's value).
  1. For automatically generated rowid's the **@Entity** includes **`@PrimaryKey(autoGenerate = true)`** and this requires that **`AUTOINCREMENT`** is coded (as well as `NOT NULL`).
 1. **A default value has been detected. You may wish to set the object member to default to the value.** (RED - with the Default attribute's value). 
-  1. Default value handling has been implemented, the convereted table will include DEFAULT ? and the @ColumnInfo annotation for the respective column/object member in the respective Entity will include defaultValue=?. Where ? represents to value as extracted from the original table.
+
+
 
 ### Indexes, FK, Triggers and Views ###
 
@@ -464,15 +471,3 @@ and
 - The CursorWindow full messages just indicating the the CursorWindow couldn't hold the row that was being added as it was larger than the estimated row size and it would have been added to the next population of the CursorWindow.
 
 The Chinook Database is similar other than that the 1 row as previously mentioned cannot be copied.
-
-
-
-
-
-
-
-
-
-
-
-
